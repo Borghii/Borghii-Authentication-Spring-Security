@@ -14,7 +14,12 @@
 <h1>Sign in</h1>
 
 <form th:action="@{/authenticateTheUser}" method="POST">
+
+
+
     <fieldset>
+
+        <p th:if="${param.error}" >Invalid username or password.</p>
 
         <label>Username
             <input type="text" name="username" placeholder="username" class="form-control">
