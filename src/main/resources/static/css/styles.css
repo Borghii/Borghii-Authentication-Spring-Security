@@ -31,9 +31,11 @@ input{
 }
 
 fieldset {
+
+
   border: none;
   padding: 2rem 0;
-  border-bottom: 3px solid #3b3b4f;
+
     text-align: center; /* Centra el contenido dentro del fieldset */
 
 }
