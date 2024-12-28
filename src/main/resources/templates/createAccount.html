@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+  <title>Creata account Page</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Incluir el archivo CSS -->
+  <link href="../static/css/styles.css" th:href="@{/css/styles.css}" rel="stylesheet" />
+
+
+</head>
+<body>
+
+  <h1>Create account</h1>
+  <form action="#" th:action="@{/register}" th:object="${user}" method="POST">
+
+    <fieldset>
+
+
+
+      <label>Username
+        <input type="text" name="username" placeholder="Username" th:field="*{username}" >
+      </label>
+
+      <label>Password
+        <input type="password" name="password" placeholder="Password" th:field="*{password}" >
+
+      </label>
+
+      <label>Name
+        <input type="text" name="name" placeholder="Name" th:field="*{name}" >
+      </label>
+
+      <label>Surname
+        <input type="text" name="surname" placeholder="Surname" th:field="*{surname}">
+      </label>
+
+      <label>Email
+        <input type="email" name="email" placeholder="Email" th:field="*{email}">
+      </label>
+
+      <input type="submit" value="Create Account"/>
+
+
+    </fieldset>
+
+
+  </form>
+
+
+</body>
+</html>
