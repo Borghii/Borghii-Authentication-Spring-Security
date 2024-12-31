@@ -42,8 +42,15 @@ public class SecurityConfig {
 
                     //gracias a esto me carga el css (no es necesario autenticacion para recurso estaticos)
                     .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+
                     .requestMatchers("/showCreateAccount").permitAll()
-                    .requestMatchers("/register").permitAll()
+                    .requestMatchers("/register/**").permitAll()
+
+
+                    //si no agregas esto al enviar parametros como no tenes permisos se
+                    // va a redirigir al login sin parametros
+
+                    .requestMatchers("/showMyCustomLogin").permitAll()
                     .anyRequest().authenticated()
             )
             .formLogin(form->

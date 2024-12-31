@@ -7,12 +7,14 @@ import com.authentication.borghi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@RestController
+@Controller
 @RequestMapping("/register")
 public class UserController {
 
@@ -27,7 +29,9 @@ public class UserController {
     @PostMapping
     public String createUser(@ModelAttribute("user") User user){
         userService.save(user);
-        return "login";
+
+        return "redirect:/showMyCustomLogin?success";
+
     }
 
 

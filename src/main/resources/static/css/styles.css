@@ -10,6 +10,10 @@ body {
 
 }
 
+hr{
+margin-bottom:10px;
+}
+
 
 
 p{
@@ -17,30 +21,49 @@ color:red;
 }
 
 h1 {
-  margin: 1em auto;
+  margin: 1em 0 0 0;
   text-align: center;
 }
 
 label{
-display: block;
+    display: block;
     margin-bottom: 10px;
     text-align: center;
-
-
 }
 
 input{
     margin:auto;
+    margin-bottom: 10px;
+
     display: block;
 }
 
+input[type="submit"]{
+
+    margin-top: 20px;
+    margin-bottom: 0px;
+    display: block;
+}
+
+
+.success{
+color:green;
+    text-align: center;
+}
+
+.error{
+    color:red;
+    text-align: center;
+}
+
+
 fieldset {
 
-
+margin-bottom:10px;
+margin-top:10px;
   border: none;
-  padding: 2rem 0;
-
-    text-align: center; /* Centra el contenido dentro del fieldset */
+  padding: auto;
+  text-align: center; /* Centra el contenido dentro del fieldset */
 
 }
 

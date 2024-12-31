@@ -14,35 +14,27 @@
 <body>
 
   <h1>Create account</h1>
+
   <form action="#" th:action="@{/register}" th:object="${user}" method="POST">
 
     <fieldset>
 
+      <label for="username">Username  </label>
+      <input type="text" id="username" name="username" placeholder="Username" th:field="*{username}" >
 
+      <label for="password">Password      </label>
+      <input type="password" id="password" name="password" placeholder="Password" th:field="*{password}" >
 
-      <label>Username
-        <input type="text" name="username" placeholder="Username" th:field="*{username}" >
-      </label>
+      <label for="name">Name      </label>
+      <input type="text" id="name" name="name" placeholder="Name" th:field="*{name}" >
 
-      <label>Password
-        <input type="password" name="password" placeholder="Password" th:field="*{password}" >
+      <label for="surname">Surname      </label>
+      <input type="text" id="surname" name="surname" placeholder="Surname" th:field="*{surname}">
 
-      </label>
-
-      <label>Name
-        <input type="text" name="name" placeholder="Name" th:field="*{name}" >
-      </label>
-
-      <label>Surname
-        <input type="text" name="surname" placeholder="Surname" th:field="*{surname}">
-      </label>
-
-      <label>Email
-        <input type="email" name="email" placeholder="Email" th:field="*{email}">
-      </label>
+      <label for="email">Email      </label>
+      <input type="email" id="email" name="email" placeholder="Email" th:field="*{email}">
 
       <input type="submit" value="Create Account"/>
-
 
     </fieldset>
 

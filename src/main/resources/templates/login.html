@@ -13,28 +13,29 @@
 <body>
 <h1>Sign in</h1>
 
+<p th:if="${param.success}" class="success">User created successfully! Please log in.</p>
+
+<p th:if="${param.error}" class="error">Invalid username or password.</p>
+
 <form th:action="@{/authenticateTheUser}" method="POST">
-
-
 
     <fieldset>
 
-        <p th:if="${param.error}" >Invalid username or password.</p>
 
-        <label>Username
-            <input type="text" name="username" placeholder="username" class="form-control">
-        </label>
+        <label for="username">Username </label>
 
-        <label>Password
-            <input type="password" name="password" placeholder="password" class="form-control">
-        </label>
+        <input type="text" id="username" name="username" placeholder="username" class="form-control">
 
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="password" class="form-control">
 
 
         <input type="submit" value="Login"/>
-        <hr>
+
 
     </fieldset>
+
+    <hr>
 
 </form>
 
