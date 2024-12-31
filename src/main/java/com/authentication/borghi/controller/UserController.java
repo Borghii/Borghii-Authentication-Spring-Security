@@ -1,6 +1,7 @@
 package com.authentication.borghi.controller;
 
 
+import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.entity.Role;
 import com.authentication.borghi.entity.User;
 import com.authentication.borghi.service.UserService;
@@ -36,18 +37,19 @@ public class UserController {
     }
 
     @PostMapping
-    public String createUser(@Valid @ModelAttribute("user") User user,
+    public String createUser(@Valid @ModelAttribute("userDTO") UserDTO userDTO,
                              BindingResult theBindingResult ){
 
         if (theBindingResult.hasErrors()) {
             return "createAccount";
         }
         else {
-            userService.save(user);
+            userService.saveUserFromDTO(userDTO);
             return "redirect:/showMyCustomLogin?success";
         }
 
     }
+
 
 
 }

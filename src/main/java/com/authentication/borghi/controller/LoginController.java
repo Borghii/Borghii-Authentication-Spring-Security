@@ -1,5 +1,6 @@
 package com.authentication.borghi.controller;
 
+import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.entity.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +17,7 @@ public class LoginController {
 
     @GetMapping("/showCreateAccount")
     public String showCreateAccount(Model model){
-        model.addAttribute("user", new User());
+        model.addAttribute("userDTO", new UserDTO());
         return "createAccount";
     }
 

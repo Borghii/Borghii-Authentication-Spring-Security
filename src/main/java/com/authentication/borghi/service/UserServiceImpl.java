@@ -1,6 +1,7 @@
 package com.authentication.borghi.service;
 
 
+import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.entity.Role;
 import com.authentication.borghi.entity.User;
 import com.authentication.borghi.repository.UserRepository;
@@ -31,10 +32,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void save(User user){
+    public void saveUserFromDTO(UserDTO userDTO){
+
+        User user = fromDTO(userDTO);
+
         user.setRole(new Role(user,"ROLE_USER"));
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         userRepository.save(user);
+    }
+
+    private User fromDTO(UserDTO userDTO){
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setPassword(userDTO.getPassword());
+        user.setName(userDTO.getName());
+        user.setSurname(userDTO.getSurname());
+        user.setEmail(userDTO.getEmail());
+        user.setRole(userDTO.getRole());
+        return user;
     }
 
     @Override

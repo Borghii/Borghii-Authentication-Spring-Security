@@ -1,12 +1,10 @@
 package com.authentication.borghi.entity;
 
+import com.authentication.borghi.dto.UserDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.*;
 
 
 @Getter
@@ -15,6 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Table(name = "users")
 public class User {
+
 
     @Id
     @Column(name = "id_user")
