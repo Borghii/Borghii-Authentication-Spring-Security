@@ -14,6 +14,14 @@ import lombok.*;
 @Table(name = "users")
 public class User {
 
+    public User(String username, String password, String name, String surname, String email, Role role) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.role = role;
+    }
 
     @Id
     @Column(name = "id_user")
