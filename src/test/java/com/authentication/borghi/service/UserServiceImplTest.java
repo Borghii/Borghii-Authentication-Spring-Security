@@ -1,6 +1,7 @@
 package com.authentication.borghi.service;
 
 import com.authentication.borghi.dto.UserDTO;
+import com.authentication.borghi.entity.Role;
 import com.authentication.borghi.entity.User;
 import com.authentication.borghi.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -13,12 +14,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -68,7 +74,46 @@ class UserServiceImplTest {
     }
 
     @Test
-    @Disabled
-    void loadUserByUsername() {
+    void shouldReturnUserDetailsWhenUserExists() {
+        //GIVEN
+
+        String username = "pedrito";
+        User user = new User(username,"123","pedro","lopez","pdrito@gmail.com",new Role());
+        Role role = new Role(user,"ROLE_USER");
+        user.setRole(role);
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        //WHEN
+
+        UserDetails userDetails = underTest.loadUserByUsername(username);
+
+        //THEN
+
+        assertThat(userDetails).isNotNull();
+        assertThat(userDetails.getUsername()).isEqualTo(user.getUsername());
+        assertThat(userDetails.getPassword()).isEqualTo(user.getPassword());
+        assertTrue(userDetails.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER")));
+
     }
+
+    @Test
+    void shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound() {
+        // GIVEN
+        String username = "not_exist";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        // THEN
+        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,
+                () -> underTest.loadUserByUsername(username)
+        );
+
+        assertEquals("User not found with username: not_exist", exception.getMessage());
+
+        // VERIFY
+        verify(userRepository).findByUsername(username);
+
+    }
+
 }
