@@ -25,6 +25,12 @@ h1 {
   text-align: center;
 }
 
+h2 {
+  margin: auto;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
 label{
     display: block;
     margin-bottom: 10px;
@@ -64,7 +70,35 @@ margin-top:10px;
   border: none;
   padding: auto;
   text-align: center; /* Centra el contenido dentro del fieldset */
+}
 
+.github-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    font-size: 16px;
+    margin: auto;
+    margin-bottom: 10px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    background-color: #2e2e2e;
+    transition: background-color 0.3s;
+    width: auto; /* Ajusta el ancho al contenido */
+    max-width: 300px; /* Tamaño máximo opcional */
+    text-align: center;
+}
+
+.github-button img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.github-button:hover {
+    background-color: #444;
 }
 
 
