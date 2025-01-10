@@ -4,6 +4,7 @@ package com.authentication.borghi.controller;
 import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.entity.Role;
 import com.authentication.borghi.entity.User;
+import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -38,15 +40,21 @@ public class UserController {
 
     @PostMapping
     public String createUser(@Valid @ModelAttribute("userDTO") UserDTO userDTO,
-                             BindingResult theBindingResult ){
+                             BindingResult theBindingResult, Model model){
 
         if (theBindingResult.hasErrors()) {
             return "createAccount";
         }
-        else {
+
+        try {
             userService.saveUserFromDTO(userDTO);
-            return "redirect:/showMyCustomLogin?success";
+        } catch (UserAlreadyExist e) {
+            model.addAttribute("alreadyExist",e.getMessage());
+            return "createAccount";
         }
+
+        return "redirect:/showMyCustomLogin?success";
+
 
     }
 

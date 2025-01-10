@@ -4,6 +4,7 @@ package com.authentication.borghi.service;
 import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.entity.Role;
 import com.authentication.borghi.entity.User;
+import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,6 +34,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void saveUserFromDTO(UserDTO userDTO){
+
+        if (userRepository.existsByUsernameOrEmail(userDTO.getUsername(), userDTO.getEmail())){
+            throw new UserAlreadyExist("Username or email already used");
+        }
 
         User user = fromDTO(userDTO);
 

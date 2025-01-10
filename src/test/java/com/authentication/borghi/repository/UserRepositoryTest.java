@@ -66,4 +66,26 @@ class UserRepositoryTest {
         // Then
         assertThat(userOptional).isNotPresent();
     }
+
+    @Test
+    void existByUsernameOrEmail(){
+
+        //GIVEN
+
+        String username = "oli";
+        User user = new User(username, "password", "name", "surname", "email@example.com", new Role());
+        user.setRole(new Role(user,"ROLE_USER"));
+
+        underTest.save(user);
+
+        //WHEN and THEN
+        assertThat(underTest.existsByUsernameOrEmail("oli","email@example.com")).isTrue();
+        assertThat(underTest.existsByUsernameOrEmail("oli","as")).isTrue();
+        assertThat(underTest.existsByUsernameOrEmail("ewr","email@example.com")).isTrue();
+        assertThat(underTest.existsByUsernameOrEmail("asas","as")).isFalse();
+
+
+
+    }
+
 }
