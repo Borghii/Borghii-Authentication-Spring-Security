@@ -46,24 +46,28 @@ public class SecurityConfig {
 
                     .requestMatchers("/showCreateAccount").permitAll()
                     .requestMatchers("/register/**").permitAll()
-
-
                     //si no agregas esto al enviar parametros como no tenes permisos se
                     // va a redirigir al login sin parametros
 
                     .requestMatchers("/showMyCustomLogin").permitAll()
                     .requestMatchers("/oauth2/**").permitAll()
+
+                    .requestMatchers("/home").authenticated()
+                    .requestMatchers("/userinfo").authenticated()
                     .anyRequest().authenticated()
             )
             .oauth2Login(form ->
                     form
                             .loginPage("/showMyCustomLogin")
+                            .defaultSuccessUrl("/home",true)
                             .permitAll()
+
             )
             .formLogin(form->
                     form
                             .loginPage("/showMyCustomLogin")
                             .loginProcessingUrl("/authenticateTheUser")
+                            .defaultSuccessUrl("/home",true)
                             .permitAll()
             );
 
