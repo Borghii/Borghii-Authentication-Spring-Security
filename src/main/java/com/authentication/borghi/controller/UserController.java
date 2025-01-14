@@ -2,21 +2,16 @@ package com.authentication.borghi.controller;
 
 
 import com.authentication.borghi.dto.UserDTO;
-import com.authentication.borghi.entity.Role;
-import com.authentication.borghi.entity.User;
 import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/register")

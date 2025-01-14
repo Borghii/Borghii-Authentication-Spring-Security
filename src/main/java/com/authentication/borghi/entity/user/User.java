@@ -1,10 +1,10 @@
-package com.authentication.borghi.entity;
+package com.authentication.borghi.entity.user;
 
-import com.authentication.borghi.dto.UserDTO;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -14,13 +14,14 @@ import lombok.*;
 @Table(name = "users")
 public class User {
 
-    public User(String username, String password, String name, String surname, String email, Role role) {
+    public User(String username, String password, String email, String provider, String providerId, Role role, UserDetail userDetail) {
         this.username = username;
         this.password = password;
-        this.name = name;
-        this.surname = surname;
         this.email = email;
+        this.provider = provider;
+        this.providerId = providerId;
         this.role = role;
+        this.userDetail = userDetail;
     }
 
     @Id
@@ -28,28 +29,29 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idUser;
 
-
-    @NotNull(message="Username is required")
     @Column(name = "username", nullable = false)
     private String username;
 
-    @NotNull(message="Password is required")
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "surname")
-    private String surname;
-
-    @Email(message="Email isn't valid")
-    @NotNull(message="is required")
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "provider")
+    private String provider;
+
+    @Column(name = "provider_id")
+    private String providerId;
+
+    @Column(name = "last_login")
+    private LocalDateTime lastLogin;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Role role;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private UserDetail userDetail;
 
 
 }

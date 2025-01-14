@@ -1,5 +1,6 @@
 package com.authentication.borghi.security;
 
+import com.authentication.borghi.handler.CustomAuthenticationSuccessHandler;
 import com.authentication.borghi.service.UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -13,12 +14,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import javax.sql.DataSource;
 
 @Configuration
 public class SecurityConfig {
 
+    @Bean
+    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -60,6 +66,7 @@ public class SecurityConfig {
                     form
                             .loginPage("/showMyCustomLogin")
                             .defaultSuccessUrl("/home",true)
+                            .successHandler(customAuthenticationSuccessHandler())
                             .permitAll()
 
             )
@@ -68,6 +75,7 @@ public class SecurityConfig {
                             .loginPage("/showMyCustomLogin")
                             .loginProcessingUrl("/authenticateTheUser")
                             .defaultSuccessUrl("/home",true)
+                            .successHandler(customAuthenticationSuccessHandler())
                             .permitAll()
             );
 

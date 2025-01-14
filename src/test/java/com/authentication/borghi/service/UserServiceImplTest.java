@@ -1,18 +1,15 @@
 package com.authentication.borghi.service;
 
 import com.authentication.borghi.dto.UserDTO;
-import com.authentication.borghi.entity.Role;
-import com.authentication.borghi.entity.User;
+import com.authentication.borghi.entity.user.Role;
+import com.authentication.borghi.entity.user.User;
+import com.authentication.borghi.entity.user.UserDetail;
 import com.authentication.borghi.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -65,8 +62,8 @@ class UserServiceImplTest {
         User capturedUser = userArgumentCaptor.getValue();
 
         assertThat(capturedUser.getUsername()).isEqualTo(userDTO.getUsername());
-        assertThat(capturedUser.getName()).isEqualTo(userDTO.getName());
-        assertThat(capturedUser.getSurname()).isEqualTo(userDTO.getSurname());
+        assertThat(capturedUser.getUserDetail().getName()).isEqualTo(userDTO.getName());
+        assertThat(capturedUser.getUserDetail().getSurname()).isEqualTo(userDTO.getSurname());
         assertThat(capturedUser.getEmail()).isEqualTo(userDTO.getEmail());
         assertThat(passwordEncoder.matches(userDTO.getPassword(), capturedUser.getPassword())).isTrue();
         assertThat(capturedUser.getRole().getRoleName()).isEqualTo("ROLE_USER");
@@ -78,7 +75,8 @@ class UserServiceImplTest {
         //GIVEN
 
         String username = "pedrito";
-        User user = new User(username,"123","pedro","lopez","pdrito@gmail.com",new Role());
+
+        User user = new User(username, "password", "email@example.com", null, null, new Role(), new UserDetail());
         Role role = new Role(user,"ROLE_USER");
         user.setRole(role);
 

@@ -1,22 +1,20 @@
 package com.authentication.borghi.repository;
 
-import com.authentication.borghi.dto.UserDTO;
-import com.authentication.borghi.entity.Role;
-import com.authentication.borghi.entity.User;
+import com.authentication.borghi.entity.user.Role;
+import com.authentication.borghi.entity.user.User;
+import com.authentication.borghi.entity.user.UserDetail;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 @DataJpaTest
@@ -24,6 +22,9 @@ class UserRepositoryTest {
 
     @Autowired
     private UserRepository underTest;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @AfterEach
     void tearDown() {
@@ -35,8 +36,9 @@ class UserRepositoryTest {
 
         // Given
         String username = "oli";
-        User user = new User(username, "password", "name", "surname", "email@example.com", new Role());
+        User user = new User(username, "password", "email@example.com", null, null, new Role(), new UserDetail());
         user.setRole(new Role(user,"ROLE_USER"));
+        user.setUserDetail(new UserDetail("Tomas","Borghi",user));
 
         underTest.save(user);
 
@@ -48,8 +50,6 @@ class UserRepositoryTest {
                 .isPresent()
                 .hasValueSatisfying(foundUser -> {
                     assertThat(foundUser.getUsername()).isEqualTo(username);
-                    assertThat(foundUser.getName()).isEqualTo("name");
-                    assertThat(foundUser.getSurname()).isEqualTo("surname");
                     assertThat(foundUser.getEmail()).isEqualTo("email@example.com");
                 });
     }
@@ -73,8 +73,9 @@ class UserRepositoryTest {
         //GIVEN
 
         String username = "oli";
-        User user = new User(username, "password", "name", "surname", "email@example.com", new Role());
+        User user = new User(username, "password", "email@example.com", null, null, new Role(), new UserDetail());
         user.setRole(new Role(user,"ROLE_USER"));
+        user.setUserDetail(new UserDetail("Tomas","Borghi",user));
 
         underTest.save(user);
 
@@ -87,5 +88,30 @@ class UserRepositoryTest {
 
 
     }
+
+    @Test
+    @Transactional
+    void itShouldUpdateLastLoginByEmail() {
+        // GIVEN
+        String email = "email@example.com";
+        User user = new User("oli", "password", email, null, null, new Role(), new UserDetail());
+        user.setRole(new Role(user, "ROLE_USER"));
+        user.setUserDetail(new UserDetail("Tomas", "Borghi", user));
+
+        underTest.save(user);
+
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
+
+        // WHEN
+        underTest.updateLastLoginByEmail(email,now);
+        entityManager.clear(); // Limpia el contexto de persistencia
+
+        // THEN
+        User updatedUser = underTest.findByUsername("oli").orElseThrow(() -> new IllegalStateException("User not found"));
+        assertThat(updatedUser.getLastLogin()).isNotNull();
+        assertThat(updatedUser.getLastLogin()).isEqualTo(now); // Verifica que el tiempo es reciente
+    }
+
+
 
 }

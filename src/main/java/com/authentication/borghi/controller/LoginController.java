@@ -1,24 +1,24 @@
 package com.authentication.borghi.controller;
 
 import com.authentication.borghi.dto.UserDTO;
-import com.authentication.borghi.entity.User;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.authentication.borghi.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @Controller
 public class LoginController {
+
+    private final UserService userService;
+
+    @Autowired
+    public LoginController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/showMyCustomLogin")
     public String showMyCustomLogin() {
@@ -37,9 +37,24 @@ public class LoginController {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof OidcUser oidcUser){
-            System.out.println("Email: " + oidcUser.getEmail());
-            System.out.println("Provider id: " + oidcUser.getSubject());
-            System.out.println("Provider id: " + oidcUser.getBirthdate());
+
+            UserDTO userDTO = UserDTO.builder()
+                            .email(oidcUser.getEmail())
+                            .providerId(oidcUser.getSubject())
+                            .provider(oidcUser.getIssuer().toString().split("\\.")[1])
+                            .name(oidcUser.getName())
+                            .surname(oidcUser.getFamilyName())
+                            .username(oidcUser.getPreferredUsername())
+                            .build();
+
+
+            try {
+                userService.saveUserFromDTO(userDTO);
+            } catch (Exception ignored) {
+            }
+
+
+            oidcUser.getClaims().forEach((key,value)-> System.out.println(key+" : "+value));
             model.addAttribute("email",oidcUser.getEmail());
 
         }
