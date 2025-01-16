@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
@@ -48,6 +49,20 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    public void saveOauthUser(OidcUser oidcUser) {
+        UserDTO userDTO = UserDTO.builder()
+                .email(oidcUser.getEmail())
+                .providerId(oidcUser.getSubject())
+                .provider(oidcUser.getIssuer().toString().split("\\.")[1])
+                .name(oidcUser.getName())
+                .surname(oidcUser.getFamilyName())
+                .username(oidcUser.getPreferredUsername())
+                .build();
+
+        saveUserFromDTO(userDTO);
+    }
+
     private User fromDTO(UserDTO userDTO){
         User user = new User();
 
@@ -69,6 +84,8 @@ public class UserServiceImpl implements UserService {
 
         return user;
     }
+
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

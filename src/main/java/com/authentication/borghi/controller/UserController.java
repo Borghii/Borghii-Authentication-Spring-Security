@@ -41,6 +41,7 @@ public class UserController {
             return "createAccount";
         }
 
+
         try {
             userService.saveUserFromDTO(userDTO);
         } catch (UserAlreadyExist e) {

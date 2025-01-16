@@ -1,7 +1,10 @@
 package com.authentication.borghi.controller;
 
 import com.authentication.borghi.dto.UserDTO;
+import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.service.UserService;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+@Log
 @Controller
 public class LoginController {
 
@@ -38,23 +42,15 @@ public class LoginController {
 
         if (principal instanceof OidcUser oidcUser){
 
-            UserDTO userDTO = UserDTO.builder()
-                            .email(oidcUser.getEmail())
-                            .providerId(oidcUser.getSubject())
-                            .provider(oidcUser.getIssuer().toString().split("\\.")[1])
-                            .name(oidcUser.getName())
-                            .surname(oidcUser.getFamilyName())
-                            .username(oidcUser.getPreferredUsername())
-                            .build();
-
 
             try {
-                userService.saveUserFromDTO(userDTO);
-            } catch (Exception ignored) {
+                userService.saveOauthUser(oidcUser);
+            } catch (UserAlreadyExist e) {
+                log.info(e.getMessage());
             }
 
 
-            oidcUser.getClaims().forEach((key,value)-> System.out.println(key+" : "+value));
+//            oidcUser.getClaims().forEach((key,value)-> System.out.println(key+" : "+value));
             model.addAttribute("email",oidcUser.getEmail());
 
         }

@@ -1,5 +1,6 @@
 package com.authentication.borghi.security;
 
+import com.authentication.borghi.handler.CustomAccessDeniedHandler;
 import com.authentication.borghi.handler.CustomAuthenticationSuccessHandler;
 import com.authentication.borghi.service.UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import javax.sql.DataSource;
@@ -24,6 +26,11 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return new CustomAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    public AccessDeniedHandler customAccessDeniedHandler(){
+        return new CustomAccessDeniedHandler();
     }
 
     @Bean
@@ -52,6 +59,9 @@ public class SecurityConfig {
 
                     .requestMatchers("/showCreateAccount").permitAll()
                     .requestMatchers("/register/**").permitAll()
+                    .requestMatchers("/access-denied").permitAll()
+
+
                     //si no agregas esto al enviar parametros como no tenes permisos se
                     // va a redirigir al login sin parametros
 
@@ -59,7 +69,7 @@ public class SecurityConfig {
                     .requestMatchers("/oauth2/**").permitAll()
 
                     .requestMatchers("/home").authenticated()
-                    .requestMatchers("/userinfo").authenticated()
+                    .requestMatchers("/userinfo").hasAnyAuthority("ROLE_USER","OIDC_USER")
                     .anyRequest().authenticated()
             )
             .oauth2Login(form ->
@@ -77,7 +87,11 @@ public class SecurityConfig {
                             .defaultSuccessUrl("/home",true)
                             .successHandler(customAuthenticationSuccessHandler())
                             .permitAll()
+            )
+            .exceptionHandling(exception ->
+                    exception.accessDeniedHandler(customAccessDeniedHandler())
             );
+
 
     return http.build();
 }
