@@ -12,11 +12,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -35,11 +37,15 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         Object principal = authentication.getPrincipal();
 
-        if (principal instanceof OidcUser oidcUser){
-            userService.updateLastLoginByEmail(oidcUser.getEmail(), LocalDateTime.now());
+        if (principal instanceof OAuth2User oAuth2User){
+            if (oAuth2User instanceof OidcUser oidcUser){
+                userService.updateLastLoginByEmail(oidcUser.getEmail(), LocalDateTime.now());
+            }else {
+                userService.updateLastLoginByEmail(Objects.requireNonNull(oAuth2User.getAttribute("id")) +"@gmail.com",LocalDateTime.now());
+            }
         }
-
-        if (principal instanceof UserDetails userDetails){
+        else {
+            UserDetails userDetails = (UserDetails) principal;
             User user = userService.findUserByUsername(userDetails.getUsername());
             userService.updateLastLoginByEmail(user.getEmail(),LocalDateTime.now());
         }

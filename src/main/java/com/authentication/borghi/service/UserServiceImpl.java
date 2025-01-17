@@ -13,12 +13,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -50,15 +53,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveOauthUser(OidcUser oidcUser) {
-        UserDTO userDTO = UserDTO.builder()
-                .email(oidcUser.getEmail())
-                .providerId(oidcUser.getSubject())
-                .provider(oidcUser.getIssuer().toString().split("\\.")[1])
-                .name(oidcUser.getName())
-                .surname(oidcUser.getFamilyName())
-                .username(oidcUser.getPreferredUsername())
-                .build();
+    public void saveOauthUser(OAuth2User oAuth2User) {
+        UserDTO userDTO = new UserDTO();
+
+        if (oAuth2User instanceof OidcUser oidcUser) {
+            userDTO = UserDTO.builder()
+                    .email(oidcUser.getEmail())
+                    .providerId(oidcUser.getSubject())
+                    .provider(oidcUser.getIssuer().toString().split("\\.")[1])
+                    .name(oidcUser.getName())
+                    .surname(oidcUser.getFamilyName())
+                    .build();
+        } else if (oAuth2User instanceof DefaultOAuth2User oauth2User ) {
+            Map<String, Object> values = oauth2User.getAttributes();
+
+            userDTO = UserDTO.builder()
+                    .provider("github")
+                    .providerId(values.get("id").toString())
+                    .email(values.getOrDefault("Email",values.get("id").toString()+"@gmail.com").toString())
+                    .build();
+        }
 
         saveUserFromDTO(userDTO);
     }

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,30 +39,24 @@ public class LoginController {
 
     @GetMapping("/home")
     public String showHome(Model model) {
-
+        // Obtener el usuario autenticado
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (principal instanceof OidcUser oidcUser){
-
-
+        // Caso: Usuario autenticado con Google (OIDC)
+        if (principal instanceof OAuth2User oAuth2User) {
             try {
-                userService.saveOauthUser(oidcUser);
+                userService.saveOauthUser(oAuth2User);
             } catch (UserAlreadyExist e) {
                 log.info(e.getMessage());
             }
-
-
-//            oidcUser.getClaims().forEach((key,value)-> System.out.println(key+" : "+value));
-            model.addAttribute("email",oidcUser.getEmail());
-
+            model.addAttribute("email", oAuth2User.getAttribute("name"));
         }
 
-        if (principal instanceof UserDetails userDetails){
+        // Caso: Usuario autenticado con detalles locales (UserDetails)
+        else if (principal instanceof UserDetails userDetails) {
             System.out.println("Email: " + userDetails.getUsername());
             model.addAttribute("email", userDetails.getUsername());
         }
-
-
 
         return "home";
     }
