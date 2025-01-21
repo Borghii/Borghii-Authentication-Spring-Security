@@ -7,6 +7,7 @@ import com.authentication.borghi.entity.user.User;
 import com.authentication.borghi.entity.user.UserDetail;
 import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.repository.UserRepository;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
+@Log
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -48,6 +50,8 @@ public class UserServiceImpl implements UserService {
         user.setRole(new Role(user,"ROLE_USER"));
 
         if (! (user.getPassword() == null)) user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        log.warning("User saved: "+userDTO.getEmail());
 
         userRepository.save(user);
     }

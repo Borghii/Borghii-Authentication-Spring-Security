@@ -93,6 +93,9 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+
+
 	</dependencies>
 
 	<build>
@@ -102,6 +105,13 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<testResources>
+			<testResource>
+				<directory>src/test/java/resources</directory>
+			</testResource>
+		</testResources>
 	</build>
+
+
 
 </project>

@@ -73,7 +73,7 @@ class LoginControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/home"))
                 .andExpect(status().isOk()) // Verifica que el estado HTTP sea 200
                 .andExpect(view().name("home")) // Verifica que la vista sea "home"
-                .andExpect(model().attribute("email", "John Doe")); // Verifica que el modelo tiene el atributo correcto
+                .andExpect(model().attribute("name", "John Doe")); // Verifica que el modelo tiene el atributo correcto
 
         // Verificar que el servicio fue llamado
         Mockito.verify(userService).saveOauthUser(oAuth2User);
@@ -94,6 +94,6 @@ class LoginControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/home"))
                 .andExpect(status().isOk()) // Verifica que el estado HTTP sea 200
                 .andExpect(view().name("home")) // Verifica que la vista sea "home"
-                .andExpect(model().attribute("email", "user@example.com")); // Verifica que el modelo tiene el atributo correcto
+                .andExpect(model().attribute("name", "user@example.com")); // Verifica que el modelo tiene el atributo correcto
     }
 }

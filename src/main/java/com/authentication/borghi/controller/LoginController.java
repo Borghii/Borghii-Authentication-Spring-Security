@@ -49,13 +49,13 @@ public class LoginController {
             } catch (UserAlreadyExist e) {
                 log.info(e.getMessage());
             }
-            model.addAttribute("email", oAuth2User.getAttribute("name"));
+            model.addAttribute("name", oAuth2User.getAttribute("name"));
         }
 
         // Caso: Usuario autenticado con detalles locales (UserDetails)
         else if (principal instanceof UserDetails userDetails) {
             System.out.println("Email: " + userDetails.getUsername());
-            model.addAttribute("email", userDetails.getUsername());
+            model.addAttribute("name", userDetails.getUsername());
         }
 
         return "home";
