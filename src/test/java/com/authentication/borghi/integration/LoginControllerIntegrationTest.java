@@ -1,4 +1,4 @@
-package com.authentication.borghi.controller;
+package com.authentication.borghi.integration;
 
 import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.service.UserService;
