@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
         if (! (user.getPassword() == null)) user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        log.warning("User saved: "+userDTO.getEmail());
+        log.info("User saved: "+userDTO.getEmail());
 
         userRepository.save(user);
     }

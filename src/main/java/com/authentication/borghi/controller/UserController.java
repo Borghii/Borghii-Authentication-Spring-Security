@@ -19,7 +19,6 @@ public class UserController {
 
     private final UserService userService;
 
-
     //utilizado para interceptar todos los textos y inputs para sacarles espacios en
     // blancos y si esta vacio que lo tome como NULL
     @InitBinder
