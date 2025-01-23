@@ -13,7 +13,8 @@
 <body>
 <h1>Sign in</h1>
 
-<p th:if="${param.success}" class="success">User created successfully! Please log in.</p>
+
+<p th:if="${successMessage}" class="success" th:text="${successMessage}"></p>
 
 <p th:if="${param.error}" class="error">Invalid username or password.</p>
 

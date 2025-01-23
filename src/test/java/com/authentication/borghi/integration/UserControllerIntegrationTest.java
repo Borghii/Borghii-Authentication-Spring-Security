@@ -7,6 +7,7 @@ import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.security.SecurityConfig;
 import com.authentication.borghi.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+@Transactional
 public class UserControllerIntegrationTest {
 
     @Autowired
@@ -88,16 +90,17 @@ public class UserControllerIntegrationTest {
 
         // when & then
         mockMvc.perform(post("/register")
-                        .with(csrf()) // MUY IMPORTANTE POR ESTO NO ME FUNCIONABA
-                        .param("username", userDTO.getUsername()) // Parámetros del formulario
+                        .with(csrf())
+                        .param("username", userDTO.getUsername())
                         .param("password", userDTO.getPassword())
                         .param("name", userDTO.getName())
                         .param("surname", userDTO.getSurname())
                         .param("email", userDTO.getEmail())
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)) // Tipo de contenido para formularios
-                .andExpect(status().isOk())
-                .andExpect(view().name("createAccount"))
-                .andExpect(model().attributeExists("alreadyExist"));
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(status().isOk()) // Espera un código 200
+                .andExpect(view().name("createAccount")) // Verifica que se devuelve la vista de creación de cuenta
+                .andExpect(model().attributeExists("alreadyExist")); // Verifica que el atributo "alreadyExist" está en el modelo
+
 
     }
 

@@ -51,6 +51,6 @@ class UserControllerTest {
                         .param("password", userDTO.getPassword())
                         .param("email", userDTO.getEmail()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/showMyCustomLogin?success"));
+                .andExpect(redirectedUrl("/showMyCustomLogin"));
     }
 }

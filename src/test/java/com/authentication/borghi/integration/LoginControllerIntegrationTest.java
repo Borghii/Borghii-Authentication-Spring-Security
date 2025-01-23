@@ -2,6 +2,7 @@ package com.authentication.borghi.integration;
 
 import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.service.UserService;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 public class LoginControllerIntegrationTest {
 
     @Autowired
