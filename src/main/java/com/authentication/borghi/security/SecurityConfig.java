@@ -6,22 +6,20 @@ import com.authentication.borghi.service.UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-import javax.sql.DataSource;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 @Configuration
 public class SecurityConfig {
+
 
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
@@ -52,26 +50,48 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-    http.authorizeHttpRequests((authorize) -> authorize
+    http
+            .csrf(Customizer.withDefaults())
 
-                    //gracias a esto me carga el css (no es necesario autenticacion para recurso estaticos)
-                    .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-
-                    .requestMatchers("/showCreateAccount").permitAll()
-                    .requestMatchers("/register/**").permitAll()
-                    .requestMatchers("/access-denied").permitAll()
-
-
-                    //si no agregas esto al enviar parametros como no tenes permisos se
-                    // va a redirigir al login sin parametros
-
-                    .requestMatchers("/showMyCustomLogin").permitAll()
-                    .requestMatchers("/oauth2/**").permitAll()
-
-                    .requestMatchers("/home").authenticated()
-                    .requestMatchers("/userinfo").hasAnyAuthority("ROLE_USER","OIDC_USER")
-                    .anyRequest().authenticated()
+            .headers(headers -> headers
+                    .httpStrictTransportSecurity(hsts -> hsts
+                            .includeSubDomains(true)
+                            .preload(true)
+                            .maxAgeInSeconds(31536000) // 1 año
+                    )
+                    .contentSecurityPolicy(csp -> csp
+                            .policyDirectives("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://pngimg.com https://cdn1.iconfinder.com; font-src 'self';")
+                    )
+                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin // Permite que la página se cargue en un frame del mismo origen
+                    )
+                    .xssProtection(xss -> xss
+                            .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
+                    )
+                    .contentTypeOptions(HeadersConfigurer.ContentTypeOptionsConfig::disable // O habilita con .enable()
+                    )
             )
+
+            .sessionManagement(session -> session
+                    .sessionFixation().migrateSession() // Cambia el ID de sesión después del login
+                    .maximumSessions(1) // Solo permite una sesión por usuario
+                    .maxSessionsPreventsLogin(false) // Si el usuario ya tiene una sesión activa, la nueva sesión invalidará la anterior
+                    .expiredUrl("/showMyCustomLogin?expiredSession") // Redirige a la página de login cuando la sesión caduca
+            )
+
+            .authorizeHttpRequests((authorize) ->
+                    authorize
+                        //gracias a esto me carga el css (no es necesario autenticacion para recurso estaticos)
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        .requestMatchers("/showCreateAccount",
+                                        "/register/**",
+                                        "/access-denied",
+                                        "/showMyCustomLogin",
+                                        "/oauth2/**").permitAll()
+                        .requestMatchers("/home").authenticated()
+                        .requestMatchers("/userinfo").hasAnyAuthority("ROLE_USER", "ROLE_OIDC_USER")
+                        .anyRequest().authenticated()
+            )
+
             .oauth2Login(form ->
                     form
                             .loginPage("/showMyCustomLogin")
@@ -80,6 +100,7 @@ public class SecurityConfig {
                             .permitAll()
 
             )
+
             .formLogin(form->
                     form
                             .loginPage("/showMyCustomLogin")
@@ -88,8 +109,19 @@ public class SecurityConfig {
                             .successHandler(customAuthenticationSuccessHandler())
                             .permitAll()
             )
+
+            .logout(logout -> logout
+                    .logoutUrl("/logout") // URL para el logout (por defecto es "/logout")
+                    .logoutSuccessUrl("/showMyCustomLogin?logout") // A dónde redirigir tras cerrar sesión
+                    .invalidateHttpSession(true) // Invalida la sesión de usuario
+                    .deleteCookies("JSESSIONID") // Elimina la cookie JSESSIONID (sesión)
+                    .clearAuthentication(true) // Limpia la autenticación
+                    .permitAll() // Permite acceso público al endpoint de logout
+            )
+
             .exceptionHandling(exception ->
-                    exception.accessDeniedHandler(customAccessDeniedHandler())
+                    exception
+                            .accessDeniedHandler(customAccessDeniedHandler())
             );
 
 

@@ -37,21 +37,24 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         Object principal = authentication.getPrincipal();
 
-        if (principal instanceof OAuth2User oAuth2User){
-            if (oAuth2User instanceof OidcUser oidcUser){
-                userService.updateLastLoginByEmail(oidcUser.getEmail(), LocalDateTime.now());
-            }else {
-                userService.updateLastLoginByEmail(Objects.requireNonNull(oAuth2User.getAttribute("id")) +"@gmail.com",LocalDateTime.now());
+        if (principal instanceof OAuth2User oAuth2User) {
+            if (oAuth2User instanceof OidcUser oidcUser) {
+                updateLastLogin(oidcUser.getEmail());
+            } else {
+                updateLastLogin(oAuth2User.getAttribute("id") + "@gmail.com");
             }
-        }
-        else {
-            UserDetails userDetails = (UserDetails) principal;
+        } else if (principal instanceof UserDetails userDetails) {
             User user = userService.findUserByUsername(userDetails.getUsername());
-            userService.updateLastLoginByEmail(user.getEmail(),LocalDateTime.now());
+            updateLastLogin(user.getEmail());
         }
 
         response.sendRedirect("/home");
 
+    }
 
+    private void updateLastLogin(String email) {
+        if (email != null) {
+            userService.updateLastLoginByEmail(email, LocalDateTime.now());
+        }
     }
 }
