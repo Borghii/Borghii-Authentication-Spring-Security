@@ -10,6 +10,7 @@ import com.authentication.borghi.repository.UserRepository;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
+import org.springframework.ui.Model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,6 +37,26 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public void processAuthenticatedUser(Object principal, Model model) {
+
+        // Caso: Usuario autenticado con Google (OIDC)
+        if (principal instanceof OAuth2User oAuth2User) {
+            try {
+                saveOauthUser(oAuth2User);
+            } catch (UserAlreadyExist e) {
+                log.info(e.getMessage());
+            }
+            model.addAttribute("name", oAuth2User.getAttribute("name"));
+        }
+
+        // Caso: Usuario autenticado con detalles locales (UserDetails)
+        else if (principal instanceof UserDetails userDetails) {
+            log.info("Email: " + userDetails.getUsername());
+            model.addAttribute("name", userDetails.getUsername());
+        }
     }
 
     @Override

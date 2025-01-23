@@ -2,6 +2,7 @@ package com.authentication.borghi.controller;
 
 import com.authentication.borghi.security.SecurityConfig;
 import com.authentication.borghi.service.UserService;
+import org.hibernate.mapping.Any;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,12 +21,15 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.ui.Model;
 
+import java.security.Principal;
 import java.util.List;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest
+@WebMvcTest(LoginController.class)
 @Import(SecurityConfig.class)
 class LoginControllerTest {
 
@@ -60,40 +64,44 @@ class LoginControllerTest {
 
     @Test
     void shouldShowHomeForOauth2User() throws Exception {
-        // Simular un usuario OIDC
+
+        // Simular un usuario con detalles locales
         OAuth2User oAuth2User = Mockito.mock(OAuth2User.class);
-        Mockito.when(oAuth2User.getAttribute("name")).thenReturn("John Doe");
+
 
         // Configurar el contexto de seguridad con el usuario simulado
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(oAuth2User, null, List.of())
         );
 
+
         // Realizar la prueba
         mockMvc.perform(MockMvcRequestBuilders.get("/home"))
                 .andExpect(status().isOk()) // Verifica que el estado HTTP sea 200
-                .andExpect(view().name("home")) // Verifica que la vista sea "home"
-                .andExpect(model().attribute("name", "John Doe")); // Verifica que el modelo tiene el atributo correcto
+                .andExpect(view().name("home")); // Verifica que la vista sea
 
-        // Verificar que el servicio fue llamado
-        Mockito.verify(userService).saveOauthUser(oAuth2User);
+
+        Mockito.verify(userService).processAuthenticatedUser(Mockito.any(Object.class),Mockito.any(Model.class));
     }
 
     @Test
     void shouldShowHomeForLocalUser() throws Exception {
         // Simular un usuario con detalles locales
         UserDetails userDetails = Mockito.mock(UserDetails.class);
-        Mockito.when(userDetails.getUsername()).thenReturn("user@example.com");
+
 
         // Configurar el contexto de seguridad con el usuario simulado
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(userDetails, null, List.of())
         );
 
+
         // Realizar la prueba
         mockMvc.perform(MockMvcRequestBuilders.get("/home"))
                 .andExpect(status().isOk()) // Verifica que el estado HTTP sea 200
-                .andExpect(view().name("home")) // Verifica que la vista sea "home"
-                .andExpect(model().attribute("name", "user@example.com")); // Verifica que el modelo tiene el atributo correcto
+                .andExpect(view().name("home")); // Verifica que la vista sea
+
+
+        Mockito.verify(userService).processAuthenticatedUser(Mockito.any(Object.class),Mockito.any(Model.class));
     }
 }
