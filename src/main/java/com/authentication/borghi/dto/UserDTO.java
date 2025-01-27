@@ -13,6 +13,7 @@ import java.io.Serializable;
 
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 public class UserDTO implements Serializable {
 

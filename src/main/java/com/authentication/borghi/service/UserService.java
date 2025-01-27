@@ -9,11 +9,11 @@ import org.springframework.ui.Model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 public interface UserService extends UserDetailsService {
     void saveUserFromDTO(UserDTO userDTO);
     void saveOauthUser(OAuth2User oAuth2User);
-    void processAuthenticatedUser(Object principal, Model model);
     void updateLastLoginByEmail(String email, LocalDateTime currentTime);
     User findUserByUsername(String username);
 }

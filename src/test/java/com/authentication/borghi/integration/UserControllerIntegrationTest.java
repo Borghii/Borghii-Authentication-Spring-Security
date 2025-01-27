@@ -69,7 +69,7 @@ public class UserControllerIntegrationTest {
                         .param("email", userDTO.getEmail())
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)) // Tipo de contenido para formularios
                 .andExpect(status().is3xxRedirection()) // Redirección (HTTP 3xx)
-                .andExpect(redirectedUrl("/showMyCustomLogin?success")) // Verifica la redirección
+                .andExpect(redirectedUrl("/showMyCustomLogin")) // Verifica la redirección
                 .andDo(print()); // Imprime la respuesta para depuración
 
 

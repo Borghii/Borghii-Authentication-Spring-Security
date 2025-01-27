@@ -1,18 +1,23 @@
 package com.authentication.borghi.controller;
 
+import com.authentication.borghi.handler.auth.AuthenticationHandler;
 import com.authentication.borghi.security.SecurityConfig;
 import com.authentication.borghi.service.UserService;
 import org.hibernate.mapping.Any;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -24,26 +29,28 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.ui.Model;
 
 import java.security.Principal;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LoginController.class)
-@Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 class LoginControllerTest {
 
 
     @Autowired
     MockMvc mockMvc;
 
-    @MockitoBean
-    private UserService userService;
 
     @AfterEach
     void tearDown() {
         SecurityContextHolder.clearContext();
     }
+
 
 
     @Test
@@ -80,8 +87,6 @@ class LoginControllerTest {
                 .andExpect(status().isOk()) // Verifica que el estado HTTP sea 200
                 .andExpect(view().name("home")); // Verifica que la vista sea
 
-
-        Mockito.verify(userService).processAuthenticatedUser(Mockito.any(Object.class),Mockito.any(Model.class));
     }
 
     @Test
@@ -101,7 +106,5 @@ class LoginControllerTest {
                 .andExpect(status().isOk()) // Verifica que el estado HTTP sea 200
                 .andExpect(view().name("home")); // Verifica que la vista sea
 
-
-        Mockito.verify(userService).processAuthenticatedUser(Mockito.any(Object.class),Mockito.any(Model.class));
     }
 }

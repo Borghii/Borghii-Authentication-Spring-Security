@@ -2,6 +2,7 @@ package com.authentication.borghi.controller;
 
 import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.exceptions.UserAlreadyExist;
+import com.authentication.borghi.handler.auth.AuthenticationHandler;
 import com.authentication.borghi.service.UserService;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +15,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 @Log
 @Controller
 public class LoginController {
 
-    private final UserService userService;
+    private final List<AuthenticationHandler> handlers;
 
     @Autowired
-    public LoginController(UserService userService) {
-        this.userService = userService;
+    public LoginController( List<AuthenticationHandler> handlers) {
+        this.handlers = handlers;
     }
 
     @GetMapping("/showMyCustomLogin")
@@ -37,8 +42,16 @@ public class LoginController {
 
     @GetMapping("/home")
     public String showHome(Model model, Authentication authentication) {
+
         // Obtener el usuario autenticado
-        userService.processAuthenticatedUser(authentication.getPrincipal(),model);
+        Map<String, Object> attributes = handlers.stream()
+                .filter(handler -> handler.supports(authentication.getPrincipal()))  // Filtra los handlers que soportan el principal
+                .findFirst()  // Devuelve el primer handler que soporte el principal
+                .map(handler -> handler.getAttributes(authentication.getPrincipal()))  // Llama a getAttributes y devuelve el mapa
+                .orElse(Collections.emptyMap());
+
+
+        model.addAllAttributes(attributes);
         return "home";
     }
 

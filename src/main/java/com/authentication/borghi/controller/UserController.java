@@ -5,6 +5,7 @@ import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.service.UserService;
 import jakarta.validation.Valid;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@Log
 @Controller
 @RequestMapping("/register")
 public class UserController {
@@ -41,6 +43,7 @@ public class UserController {
                              RedirectAttributes redirectAttributes){
 
         if (theBindingResult.hasErrors()) {
+            log.info("Has errors binding");
             return "createAccount";
         }
 
