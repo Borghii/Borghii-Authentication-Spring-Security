@@ -2,34 +2,40 @@ package com.authentication.borghi.service;
 
 
 import com.authentication.borghi.dto.UserDTO;
-import com.authentication.borghi.entity.Role;
-import com.authentication.borghi.entity.User;
+import com.authentication.borghi.entity.user.Role;
+import com.authentication.borghi.entity.user.User;
+import com.authentication.borghi.entity.user.UserMapper;
 import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.repository.UserRepository;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Repository;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
 
+
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Optional;
 
+@Log
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
+
 
     @Override
     @Transactional
@@ -39,25 +45,23 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExist("Username or email already used");
         }
 
-        User user = fromDTO(userDTO);
+        User user = userMapper.fromDTO(userDTO);
 
         user.setRole(new Role(user,"ROLE_USER"));
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (! (user.getPassword() == null)) user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        log.info("User saved: "+userDTO.getEmail());
 
         userRepository.save(user);
     }
 
-    private User fromDTO(UserDTO userDTO){
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
-        user.setName(userDTO.getName());
-        user.setSurname(userDTO.getSurname());
-        user.setEmail(userDTO.getEmail());
-        user.setRole(userDTO.getRole());
-        return user;
+    @Override
+    public void saveOauthUser(OAuth2User oAuth2User) {
+        saveUserFromDTO(userMapper.fromOAuth2User(oAuth2User));
     }
+
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -70,4 +74,14 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
+    @Override
+    public User findUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    }
+
+    @Override
+    @Transactional
+    public void updateLastLoginByEmail(String email, LocalDateTime currentTime) {
+        userRepository.updateLastLoginByEmail(email,currentTime);
+    }
 }

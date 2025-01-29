@@ -1,4 +1,4 @@
-package com.authentication.borghi.entity;
+package com.authentication.borghi.entity.user;
 
 
 import jakarta.persistence.*;
