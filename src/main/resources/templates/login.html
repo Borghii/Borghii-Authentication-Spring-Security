@@ -20,7 +20,7 @@
 
 <p th:if="${param.expiredSession}" class="error">Your session has expired.</p>
 
-<p th:if="${param.logout}" class="error">Successful logout.</p>
+<p th:if="${param.logout}" class="success">Successful logout.</p>
 
 <form th:action="@{/authenticateTheUser}" method="POST">
 

@@ -39,6 +39,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.*;
 
+import static com.authentication.borghi.constants.TestConstants.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
@@ -68,85 +69,33 @@ public class HandlerAuthIntegrationTest {
     private HttpServletResponse response;
 
 
+    @BeforeEach
+    void setUp() {
+        successHandler.setHandlers(List.of(oAuth2UserHandler));
+    }
 
 
     @Test
-    void testHandlerOauth2WorksPerfectly() throws ServletException, IOException {
+    void shouldThrowExceptionWhenUserAlreadyExists() throws ServletException, IOException {
+        // Given: Un usuario OAuth2 autenticado
+        Authentication authentication = new TestingAuthenticationToken(TEST_OIDC_USER, null);
 
-        //given
-        successHandler.setHandlers(new ArrayList<>(List.of(oAuth2UserHandler)));
-
-        Authentication authentication = new TestingAuthenticationToken(createUserOauth2(), null);
-
-        //when
-        successHandler.onAuthenticationSuccess(request, response, authentication);
-
-        //then
-
+        // When & Then: Se espera que falle porque el usuario ya existe
         assertThatThrownBy(() -> {
-            userService.saveOauthUser((OAuth2User) authentication.getPrincipal());
+            successHandler.onAuthenticationSuccess(request, response, authentication);
+            userService.saveOauthUser((OidcUser) authentication.getPrincipal());
         })
                 .isInstanceOf(UserAlreadyExist.class)
-                .hasMessage("Username or email already used");
+                .hasMessage(ERROR_MESSAGE);
     }
 
 
 
 
-    private OAuth2User createUserOauth2(){
-        return new OidcUser() {
-            @Override
-            public String getName() {
-                return "tomi";
-            }
-
-            @Override
-            public Map<String, Object> getAttributes() {
-                return Map.of("name","tomi");
-            }
-
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                return List.of();
-            }
-
-            @Override
-            public Map<String, Object> getClaims() {
-                return Map.of();
-            }
-
-            @Override
-            public OidcUserInfo getUserInfo() {
-                return null;
-            }
-
-            @Override
-            public OidcIdToken getIdToken() {
-                return null;
-            }
-
-            @Override
-            public String getEmail() {
-                return "johndoe@example.com";
-            }
-
-            @Override
-            public String getSubject() {
-                return OidcUser.super.getSubject();
-            }
-
-            @Override
-            public URL getIssuer() {
-                try {
-                    return new URL("http://google.com");
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-        } ;
-    }
 
 
 
 }
+
+
+

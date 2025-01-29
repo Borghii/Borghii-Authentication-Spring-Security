@@ -14,104 +14,98 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 class UserRepositoryTest {
 
     @Autowired
-    private UserRepository underTest;
+    private UserRepository userRepository;
 
     @Autowired
     private EntityManager entityManager;
 
     @AfterEach
     void tearDown() {
-        underTest.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
     void itShouldFindUserByUsername() {
-
         // Given
         String username = "oli";
-        User user = new User(username, "password", "email@example.com", null, null, new Role(), new UserDetail());
-        user.setRole(new Role(user,"ROLE_USER"));
-        user.setUserDetail(new UserDetail("Tomas","Borghi",user));
+        String email = "email@example.com";
+        User user = createUser(username, email);
 
-        underTest.save(user);
+        userRepository.save(user);
 
         // When
-        Optional<User> userOptional = underTest.findByUsername(username);
+        Optional<User> optionalUser = userRepository.findByUsername(username);
 
         // Then
-        assertThat(userOptional)
-                .isPresent()
+        assertThat(optionalUser).isPresent()
                 .hasValueSatisfying(foundUser -> {
                     assertThat(foundUser.getUsername()).isEqualTo(username);
-                    assertThat(foundUser.getEmail()).isEqualTo("email@example.com");
+                    assertThat(foundUser.getEmail()).isEqualTo(email);
                 });
     }
 
     @Test
-    void itShouldntFindUserByUsername() {
-
+    void itShouldNotFindUserByUsername() {
         // Given
-        String username = "oli";
+        String username = "nonexistent";
 
         // When
-        Optional<User> userOptional = underTest.findByUsername(username);
+        Optional<User> optionalUser = userRepository.findByUsername(username);
 
         // Then
-        assertThat(userOptional).isNotPresent();
+        assertThat(optionalUser).isNotPresent();
     }
 
     @Test
-    void existByUsernameOrEmail(){
-
-        //GIVEN
-
+    void itShouldCheckExistenceByUsernameOrEmail() {
+        // Given
         String username = "oli";
-        User user = new User(username, "password", "email@example.com", null, null, new Role(), new UserDetail());
-        user.setRole(new Role(user,"ROLE_USER"));
-        user.setUserDetail(new UserDetail("Tomas","Borghi",user));
+        String email = "email@example.com";
+        User user = createUser(username, email);
 
-        underTest.save(user);
+        userRepository.save(user);
 
-        //WHEN and THEN
-        assertThat(underTest.existsByUsernameOrEmail("oli","email@example.com")).isTrue();
-        assertThat(underTest.existsByUsernameOrEmail("oli","as")).isTrue();
-        assertThat(underTest.existsByUsernameOrEmail("ewr","email@example.com")).isTrue();
-        assertThat(underTest.existsByUsernameOrEmail("asas","as")).isFalse();
-
-
-
+        // When & Then
+        assertThat(userRepository.existsByUsernameOrEmail(username, email)).isTrue();
+        assertThat(userRepository.existsByUsernameOrEmail(username, "nonexistent@example.com")).isTrue();
+        assertThat(userRepository.existsByUsernameOrEmail("nonexistent", email)).isTrue();
+        assertThat(userRepository.existsByUsernameOrEmail("nonexistent", "nonexistent@example.com")).isFalse();
     }
 
     @Test
     @Transactional
     void itShouldUpdateLastLoginByEmail() {
-        // GIVEN
+        // Given
+        String username = "oli";
         String email = "email@example.com";
-        User user = new User("oli", "password", email, null, null, new Role(), new UserDetail());
-        user.setRole(new Role(user, "ROLE_USER"));
-        user.setUserDetail(new UserDetail("Tomas", "Borghi", user));
+        User user = createUser(username, email);
 
-        underTest.save(user);
+        userRepository.save(user);
 
         LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
 
-        // WHEN
-        underTest.updateLastLoginByEmail(email,now);
-        entityManager.clear(); // Limpia el contexto de persistencia
+        // When
+        userRepository.updateLastLoginByEmail(email, now);
+        entityManager.clear(); // Clear persistence context to avoid caching issues
 
-        // THEN
-        User updatedUser = underTest.findByUsername("oli").orElseThrow(() -> new IllegalStateException("User not found"));
+        // Then
+        User updatedUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         assertThat(updatedUser.getLastLogin()).isNotNull();
-        assertThat(updatedUser.getLastLogin()).isEqualTo(now); // Verifica que el tiempo es reciente
+        assertThat(updatedUser.getLastLogin()).isEqualTo(now);
     }
 
-
-
+    // Helper method to create a User
+    private User createUser(String username, String email) {
+        User user = new User(username, "password", email, null, null, new Role(), new UserDetail());
+        user.setRole(new Role(user, "ROLE_USER"));
+        user.setUserDetail(new UserDetail("Tomas", "Borghi", user));
+        return user;
+    }
 }

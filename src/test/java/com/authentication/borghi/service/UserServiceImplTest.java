@@ -6,6 +6,7 @@ import com.authentication.borghi.entity.user.User;
 import com.authentication.borghi.entity.user.UserDetail;
 import com.authentication.borghi.entity.user.UserMapper;
 import com.authentication.borghi.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,12 +20,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
@@ -34,42 +35,86 @@ class UserServiceImplTest {
     @Mock
     private UserMapper userMapper;
 
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder() ;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-
-
-    private UserService underTest;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
-        underTest = new UserServiceImpl(userRepository,passwordEncoder,userMapper);
+        userService = new UserServiceImpl(userRepository, passwordEncoder, userMapper);
     }
 
     @Test
-    void canSaveUserFromDTO() {
+    void shouldSaveUserFromDTO() {
         // Given
         UserDTO userDTO = createTestUserDTO();
         User user = createTestUser(userDTO);
 
-        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-
         when(userMapper.fromDTO(userDTO)).thenReturn(user);
 
         // When
-        underTest.saveUserFromDTO(userDTO);
+        userService.saveUserFromDTO(userDTO);
 
         // Then
-        verify(userRepository).save(userArgumentCaptor.capture());
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
 
-        User capturedUser = userArgumentCaptor.getValue();
-
+        User capturedUser = userCaptor.getValue();
         assertThat(capturedUser.getUsername()).isEqualTo(userDTO.getUsername());
         assertThat(capturedUser.getUserDetail().getName()).isEqualTo(userDTO.getName());
         assertThat(capturedUser.getUserDetail().getSurname()).isEqualTo(userDTO.getSurname());
         assertThat(capturedUser.getEmail()).isEqualTo(userDTO.getEmail());
+
+
         assertThat(passwordEncoder.matches(userDTO.getPassword(), capturedUser.getPassword())).isTrue();
         assertThat(capturedUser.getRole().getRoleName()).isEqualTo("ROLE_USER");
     }
+
+    @Test
+    void shouldThrowUsernameNotFoundExceptionWhenUserNotFound() {
+        // Given
+        String username = "not_exist";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> userService.loadUserByUsername(username))
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessage("User not found with username: " + username);
+
+        verify(userRepository).findByUsername(username);
+    }
+
+    @Test
+    void shouldReturnUserWhenUsernameExists() {
+        // Given
+        String username = "testUser";
+        User user = createTestUser(createTestUserDTO());
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        // When
+        User result = userService.findUserByUsername(username);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getUsername()).isEqualTo(username);
+        verify(userRepository).findByUsername(username);
+    }
+
+
+    @Test
+    void shouldUpdateLastLoginByEmail() {
+        // Given
+        String email = "test@example.com";
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        // When
+        userService.updateLastLoginByEmail(email, currentTime);
+
+        // Then
+        verify(userRepository).updateLastLoginByEmail(email, currentTime);
+    }
+
+    // Helper methods
 
     private UserDTO createTestUserDTO() {
         return UserDTO.builder()
@@ -94,78 +139,6 @@ class UserServiceImplTest {
 
         user.setRole(role);
         user.setUserDetail(userDetails);
-
         return user;
     }
-
-
-
-    @Test
-    void shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound() {
-        // GIVEN
-        String username = "not_exist";
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        // THEN
-        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,
-                () -> underTest.loadUserByUsername(username)
-        );
-
-        assertEquals("User not found with username: not_exist", exception.getMessage());
-
-        // VERIFY
-        verify(userRepository).findByUsername(username);
-
-    }
-
-
-
-
-    @Test
-    void shouldReturnUserWhenUsernameExists() {
-        // GIVEN
-        String username = "testUser";
-        User user = new User(username, "password", "email@example.com", null, null, new Role(), new UserDetail());
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-
-        // WHEN
-        User result = underTest.findUserByUsername(username);
-
-        // THEN
-        assertThat(result).isNotNull();
-        assertThat(result.getUsername()).isEqualTo(username);
-        verify(userRepository).findByUsername(username);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUsernameDoesNotExist() {
-        // GIVEN
-        String username = "nonExistentUser";
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        // WHEN & THEN
-        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,
-                () -> underTest.findUserByUsername(username)
-        );
-
-        assertThat(exception.getMessage()).isEqualTo("User not found with username: " + username);
-        verify(userRepository).findByUsername(username);
-    }
-
-
-    @Test
-    void shouldUpdateLastLoginByEmail() {
-        // GIVEN
-        String email = "test@example.com";
-        LocalDateTime currentTime = LocalDateTime.now();
-
-        // No se necesita configurar el repositorio porque no devuelve valores aquí
-
-        // WHEN
-        underTest.updateLastLoginByEmail(email, currentTime);
-
-        // THEN
-        verify(userRepository).updateLastLoginByEmail(email, currentTime);
-    }
-
 }
