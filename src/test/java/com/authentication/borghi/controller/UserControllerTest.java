@@ -11,11 +11,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.validation.BindingResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -30,6 +30,9 @@ class UserControllerTest {
 
     @MockitoBean
     UserService userService;
+
+    @MockitoBean
+    BindingResult theBindingResult;
 
     @Test
     void shouldCreateUserAndAddSuccessMessage() throws Exception {
@@ -81,5 +84,19 @@ class UserControllerTest {
                 .andExpect(status().isOk()) // Espera un código 200 (éxito)
                 .andExpect(view().name("createAccount")) // Espera la vista "createAccount"
                 .andExpect(model().attributeExists("alreadyExist")); // Espera el atributo "alreadyExist"
+    }
+
+    @Test
+    void shouldReturnCreateAccountIfBindingHasErrors() throws Exception {
+
+
+        //when
+        when(theBindingResult.hasErrors()).thenReturn(true);
+
+        //then
+        mockMvc.perform(post("/register"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("createAccount"));
+
     }
 }

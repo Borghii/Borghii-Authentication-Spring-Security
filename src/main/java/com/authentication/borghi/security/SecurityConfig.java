@@ -1,7 +1,7 @@
 package com.authentication.borghi.security;
 
-import com.authentication.borghi.handler.CustomAccessDeniedHandler;
-import com.authentication.borghi.handler.CustomAuthenticationSuccessHandler;
+import com.authentication.borghi.security.handler.CustomAccessDeniedHandler;
+import com.authentication.borghi.security.handler.CustomAuthenticationSuccessHandler;
 import com.authentication.borghi.service.UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;

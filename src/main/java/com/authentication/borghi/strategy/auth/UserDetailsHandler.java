@@ -1,4 +1,4 @@
-package com.authentication.borghi.handler.auth;
+package com.authentication.borghi.strategy.auth;
 
 import com.authentication.borghi.entity.user.User;
 import com.authentication.borghi.service.UserService;

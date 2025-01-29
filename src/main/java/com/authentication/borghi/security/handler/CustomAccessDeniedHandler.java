@@ -1,4 +1,4 @@
-package com.authentication.borghi.handler;
+package com.authentication.borghi.security.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

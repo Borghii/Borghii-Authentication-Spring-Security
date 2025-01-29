@@ -1,6 +1,5 @@
-package com.authentication.borghi.handler.auth;
+package com.authentication.borghi.strategy.auth;
 
-import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.service.UserService;
 import lombok.extern.java.Log;
