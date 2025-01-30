@@ -6,12 +6,17 @@ import com.authentication.borghi.service.UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -86,7 +91,12 @@ public class SecurityConfig {
                                         "/register/**",
                                         "/access-denied",
                                         "/showMyCustomLogin",
-                                        "/oauth2/**").permitAll()
+                                        "/oauth2/**",
+                                        "/ott/sent",
+                                        "/login/ott",
+                                        "/ott/generate",
+                                        "/favicon.ico"
+                                                        ).permitAll()
                         .requestMatchers("/home").authenticated()
                         .requestMatchers("/userinfo").hasAnyAuthority("ROLE_USER", "ROLE_OIDC_USER")
                         .anyRequest().authenticated()
@@ -110,6 +120,10 @@ public class SecurityConfig {
                             .permitAll()
             )
 
+            .oneTimeTokenLogin(ott ->
+                    ott.authenticationSuccessHandler((req, res, auth) -> res.sendRedirect("/home"))
+            )
+
             .logout(logout -> logout
                     .logoutUrl("/logout") // URL para el logout (por defecto es "/logout")
                     .logoutSuccessUrl("/showMyCustomLogin?logout") // A dónde redirigir tras cerrar sesión
@@ -127,6 +141,17 @@ public class SecurityConfig {
 
     return http.build();
 }
+
+    @Primary
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails user = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("password")
+                .roles("USER")
+                .build();
+        return new InMemoryUserDetailsManager(user);
+    }
 
 
 
