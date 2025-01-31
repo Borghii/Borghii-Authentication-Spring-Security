@@ -1,10 +1,13 @@
 package com.authentication.borghi.entity.user;
 
+import com.authentication.borghi.entity.onetimetoken.OneTimeToken;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -52,6 +55,9 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private UserDetail userDetail;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OneTimeToken> oneTimeTokens = new ArrayList<>();
 
 
 }

@@ -4,7 +4,7 @@ import static com.authentication.borghi.constants.TestConstants.*;
 
 import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.entity.user.User;
-import com.authentication.borghi.service.UserService;
+import com.authentication.borghi.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

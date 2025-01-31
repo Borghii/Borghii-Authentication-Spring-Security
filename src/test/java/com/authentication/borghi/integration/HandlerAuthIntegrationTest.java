@@ -1,11 +1,9 @@
 package com.authentication.borghi.integration;
 
 
-import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.exceptions.UserAlreadyExist;
 import com.authentication.borghi.security.handler.CustomAuthenticationSuccessHandler;
-import com.authentication.borghi.service.UserService;
-import com.authentication.borghi.strategy.auth.AuthenticationHandler;
+import com.authentication.borghi.service.user.UserService;
 import com.authentication.borghi.strategy.auth.OAuth2UserHandler;
 import com.authentication.borghi.strategy.auth.UserDetailsHandler;
 import jakarta.servlet.ServletException;
@@ -18,15 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,9 +24,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.Instant;
 import java.util.*;
 
 import static com.authentication.borghi.constants.TestConstants.*;

@@ -1,13 +1,18 @@
 package com.authentication.borghi.security;
 
+import com.authentication.borghi.repository.OneTimeTokenRepository;
 import com.authentication.borghi.security.handler.CustomAccessDeniedHandler;
 import com.authentication.borghi.security.handler.CustomAuthenticationSuccessHandler;
-import com.authentication.borghi.service.UserService;
+import com.authentication.borghi.service.onetimetoken.PersistentOneTimeTokenService;
+import com.authentication.borghi.service.user.UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.ott.JdbcOneTimeTokenService;
+import org.springframework.security.authentication.ott.OneTimeTokenService;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -26,6 +31,8 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 public class SecurityConfig {
 
 
+
+
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return new CustomAuthenticationSuccessHandler();
@@ -40,6 +47,7 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
+
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(UserService userService){
@@ -123,7 +131,6 @@ public class SecurityConfig {
             .oneTimeTokenLogin(ott ->
                     ott.authenticationSuccessHandler((req, res, auth) -> res.sendRedirect("/home"))
             )
-
             .logout(logout -> logout
                     .logoutUrl("/logout") // URL para el logout (por defecto es "/logout")
                     .logoutSuccessUrl("/showMyCustomLogin?logout") // A dónde redirigir tras cerrar sesión
@@ -142,16 +149,15 @@ public class SecurityConfig {
     return http.build();
 }
 
-    @Primary
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
-    }
+
+//    public UserDetailsService userDetailsService() {
+//        UserDetails user = User.withDefaultPasswordEncoder()
+//                .username("user")
+//                .password("password")
+//                .roles("USER")
+//                .build();
+//        return new InMemoryUserDetailsManager(user);
+//    }
 
 
 

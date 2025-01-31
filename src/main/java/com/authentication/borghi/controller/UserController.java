@@ -3,7 +3,7 @@ package com.authentication.borghi.controller;
 
 import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.exceptions.UserAlreadyExist;
-import com.authentication.borghi.service.UserService;
+import com.authentication.borghi.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;

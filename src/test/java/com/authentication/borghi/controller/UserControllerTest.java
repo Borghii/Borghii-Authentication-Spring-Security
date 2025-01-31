@@ -2,11 +2,8 @@ package com.authentication.borghi.controller;
 
 import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.exceptions.UserAlreadyExist;
-import com.authentication.borghi.service.UserService;
-import org.junit.jupiter.api.DisplayName;
+import com.authentication.borghi.service.user.UserService;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,7 +14,6 @@ import org.springframework.validation.BindingResult;
 import static com.authentication.borghi.constants.TestConstants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 

@@ -1,7 +1,7 @@
 package com.authentication.borghi.strategy.auth;
 
 import com.authentication.borghi.entity.user.User;
-import com.authentication.borghi.service.UserService;
+import com.authentication.borghi.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;

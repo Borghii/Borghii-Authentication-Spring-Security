@@ -1,7 +1,7 @@
 package com.authentication.borghi.strategy.auth;
 
 import com.authentication.borghi.exceptions.UserAlreadyExist;
-import com.authentication.borghi.service.UserService;
+import com.authentication.borghi.service.user.UserService;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;

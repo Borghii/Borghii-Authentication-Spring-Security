@@ -1,4 +1,4 @@
-package com.authentication.borghi.service;
+package com.authentication.borghi.service.user;
 
 
 import com.authentication.borghi.dto.UserDTO;
@@ -77,6 +77,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(User user) {
+        userRepository.save(user);
     }
 
     @Override

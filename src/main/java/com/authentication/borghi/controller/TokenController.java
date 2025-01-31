@@ -12,11 +12,5 @@ public class TokenController {
         return "ott-send"; // Página de confirmación
     }
 
-    @GetMapping("/login/ott")
-    public String showHome() {
-        return "home"; // Página de confirmación
-    }
-
-
 }
 
