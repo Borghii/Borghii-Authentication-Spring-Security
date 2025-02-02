@@ -42,6 +42,7 @@ public class PersistentOneTimeTokenService implements OneTimeTokenService {
 
 
         User user = userService.findUserByUsername(request.getUsername());
+
         if (user == null) {
             try {
                 throw new BadRequestException("User not found");

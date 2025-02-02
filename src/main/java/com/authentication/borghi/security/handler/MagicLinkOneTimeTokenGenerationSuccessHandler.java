@@ -1,14 +1,13 @@
 package com.authentication.borghi.security.handler;
 
+import com.authentication.borghi.service.email.SendEmailService;
+import com.authentication.borghi.service.user.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.ott.OneTimeToken;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import com.authentication.borghi.entity.user.User;
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.util.UrlUtils;
@@ -20,7 +19,11 @@ import java.io.IOException;
 @Component
 public class MagicLinkOneTimeTokenGenerationSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
 
-    //private final MailSender mailSender;
+    @Autowired
+    private SendEmailService emailService;
+
+    @Autowired
+    private UserService userService;
 
     private final OneTimeTokenGenerationSuccessHandler redirectHandler = new RedirectOneTimeTokenGenerationSuccessHandler("/ott/sent");
 
@@ -37,18 +40,24 @@ public class MagicLinkOneTimeTokenGenerationSuccessHandler implements OneTimeTok
 
         String magicLink = builder.toUriString();
 
-        //String email = getUserEmail(oneTimeToken.getUsername());
+        sendTokenToUserEmail(oneTimeToken.getUsername(), magicLink);
 
         System.out.println(magicLink);
 
-        //this.mailSender.send(email, "Your Spring Security One Time Token", "Use the following link to sign in into the application: " + magicLink);
         this.redirectHandler.handle(request, response, oneTimeToken);
     }
 
-    private String getUserEmail() {
-        // ...
-        return null;
+
+    private void sendTokenToUserEmail(String username, String magicLink){
+        User user = userService.findUserByUsername(username);
+        String email = user.getEmail();
+        String body = "Use the following link to sign in into the application: " + magicLink;
+        String subject = "Your Spring Security One Time Token";
+        emailService.sendEmail(email,subject,body);
     }
+
+
+
 
 
 
