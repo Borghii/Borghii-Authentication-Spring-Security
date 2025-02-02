@@ -6,6 +6,7 @@ import com.authentication.borghi.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.ott.*;
@@ -16,6 +17,7 @@ import com.authentication.borghi.entity.onetimetoken.OneTimeToken;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -85,6 +87,13 @@ public class PersistentOneTimeTokenService implements OneTimeTokenService {
 
         return new DefaultOneTimeToken(token.getTokenValue(),token.getUser().getUsername(), Instant.now());
 
-
     }
+
+    @Scheduled(fixedDelay = 200, timeUnit = TimeUnit.SECONDS)
+    public void removeExpiredTokens(){
+        System.out.println("Tokens deleted");
+        tokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());
+    }
+
+
 }
