@@ -2,6 +2,9 @@ package com.authentication.borghi.controller;
 
 import com.authentication.borghi.dto.UserDTO;
 import com.authentication.borghi.strategy.auth.AuthenticationHandler;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -26,8 +29,20 @@ public class LoginController {
     }
 
     @GetMapping("/showMyCustomLogin")
-    public String showMyCustomLogin() {
+    public String showMyCustomLogin(Model model, HttpSession session) {
+        verifySessionAttributes(model, session);
         return "login";
+    }
+
+    private static void verifySessionAttributes(Model model, HttpSession session) {
+        if (session.getAttribute("usernameNotFound") != null) {
+            model.addAttribute("usernameNotFound", session.getAttribute("usernameNotFound"));
+            session.removeAttribute("usernameNotFound");
+        }
+        if (session.getAttribute("tokenExpired") != null) {
+            model.addAttribute("tokenExpired", session.getAttribute("tokenExpired"));
+            session.removeAttribute("tokenExpired");
+        }
     }
 
     @GetMapping("/showCreateAccount")

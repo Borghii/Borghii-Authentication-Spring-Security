@@ -1,42 +1,43 @@
 package com.authentication.borghi.security;
 
-import com.authentication.borghi.repository.OneTimeTokenRepository;
+import com.authentication.borghi.filter.FilterChainExceptionHandler;
 import com.authentication.borghi.security.handler.CustomAccessDeniedHandler;
+import com.authentication.borghi.security.handler.CustomAuthenticationFailureOTT;
 import com.authentication.borghi.security.handler.CustomAuthenticationSuccessHandler;
-import com.authentication.borghi.service.onetimetoken.PersistentOneTimeTokenService;
 import com.authentication.borghi.service.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.authentication.ott.JdbcOneTimeTokenService;
-import org.springframework.security.authentication.ott.OneTimeTokenService;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 @Configuration
 public class SecurityConfig {
 
-
-
+    @Autowired
+    private FilterChainExceptionHandler filterChainExceptionHandler;
 
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return new CustomAuthenticationSuccessHandler();
     }
+
+    @Bean
+    public AuthenticationFailureHandler customAuthenticationFailureHandlerOTT() {
+        return new CustomAuthenticationFailureOTT();
+    }
+
 
     @Bean
     public AccessDeniedHandler customAccessDeniedHandler(){
@@ -64,7 +65,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
     http
+            //agregamos filtro para capturar exceptiones que ocurrent dentro de los filtros
+            //y manejarlas con nuestro global exception handler
+            .addFilterBefore(filterChainExceptionHandler, LogoutFilter.class)
+
             .csrf(Customizer.withDefaults())
+
+            //.requiresChannel(channel -> channel.anyRequest().requiresSecure()) // Enforce HTTPS
+
 
             .headers(headers -> headers
                     .httpStrictTransportSecurity(hsts -> hsts
@@ -103,7 +111,9 @@ public class SecurityConfig {
                                         "/ott/sent",
                                         "/login/ott",
                                         "/ott/generate",
-                                        "/favicon.ico"
+                                        "/favicon.ico",
+                                        "/error/username-not-found"
+
                                                         ).permitAll()
                         .requestMatchers("/home").authenticated()
                         .requestMatchers("/userinfo").hasAnyAuthority("ROLE_USER", "ROLE_OIDC_USER")
@@ -128,9 +138,11 @@ public class SecurityConfig {
                             .permitAll()
             )
 
-            .oneTimeTokenLogin(ott ->
-                    ott.authenticationSuccessHandler((req, res, auth) -> res.sendRedirect("/home"))
+            .oneTimeTokenLogin(ott -> ott
+                    .authenticationSuccessHandler((req, res, auth) -> res.sendRedirect("/home"))
+                    .authenticationFailureHandler(customAuthenticationFailureHandlerOTT())
             )
+
             .logout(logout -> logout
                     .logoutUrl("/logout") // URL para el logout (por defecto es "/logout")
                     .logoutSuccessUrl("/showMyCustomLogin?logout") // A dónde redirigir tras cerrar sesión

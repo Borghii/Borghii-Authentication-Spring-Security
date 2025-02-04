@@ -1,5 +1,7 @@
 package com.authentication.borghi.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -10,4 +12,6 @@ public class ErrorController {
     public String accessDenied() {
         return "access-denied";
     }
+
+
 }

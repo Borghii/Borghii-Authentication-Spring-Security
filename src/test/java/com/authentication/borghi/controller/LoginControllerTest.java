@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.authentication.borghi.constants.TestConstants.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import java.util.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,7 +36,7 @@ class LoginControllerTest {
 
     @Test
     void shouldReturnLoginView() throws Exception {
-        mockMvc.perform(get(LOGIN_URL))
+        mockMvc.perform(get(LOGIN_URL).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name(LOGIN_VIEW));
     }
