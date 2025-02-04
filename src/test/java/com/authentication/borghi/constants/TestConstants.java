@@ -1,5 +1,6 @@
 package com.authentication.borghi.constants;
 
+import com.authentication.borghi.dto.UserDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -74,6 +75,14 @@ public final class TestConstants {
             "tomi",
             "123",
             Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+
+    public static final UserDTO TEST_USER_DTO = UserDTO.builder()
+            .username("testUser")
+            .password("password")
+            .name("Test")
+            .surname("User")
+            .email("testuser@example.com")
+            .build();
 
     // URLs
     public static final String REGISTER_URL = "/register";

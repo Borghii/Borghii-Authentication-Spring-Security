@@ -19,7 +19,7 @@ import java.util.UUID;
 @Transactional
 public class PersistentOneTimeTokenService implements OneTimeTokenService {
 
-    private static final int TOKEN_VALIDITY_MINUTES = 1;
+    private static final int TOKEN_VALIDITY_MINUTES = 15;
 
 
     private final OneTimeTokenRepository tokenRepository;
