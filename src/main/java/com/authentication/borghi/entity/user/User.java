@@ -4,7 +4,6 @@ import com.authentication.borghi.entity.onetimetoken.OneTimeToken;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +56,7 @@ public class User {
     private UserDetail userDetail;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OneTimeToken> oneTimeTokens = new ArrayList<>();
+    private List<OneTimeToken> oneTimeTokenES = new ArrayList<>();
 
 
 }

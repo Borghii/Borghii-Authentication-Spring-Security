@@ -1,5 +1,6 @@
 package com.authentication.borghi.service.onetimetoken;
 
+import com.authentication.borghi.entity.onetimetoken.OneTimeToken;
 import com.authentication.borghi.entity.user.User;
 import com.authentication.borghi.repository.OneTimeTokenRepository;
 import com.authentication.borghi.service.user.UserService;
@@ -9,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ott.*;
 import org.springframework.stereotype.Service;
-import com.authentication.borghi.entity.onetimetoken.OneTimeToken;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -32,14 +32,14 @@ public class PersistentOneTimeTokenService implements OneTimeTokenService {
         this.tokenRepository = tokenRepository;
     }
 
+
     @Override
-    public org.springframework.security.authentication.ott.OneTimeToken generate(GenerateOneTimeTokenRequest request){
+    public org.springframework.security.authentication.ott.OneTimeToken generate(GenerateOneTimeTokenRequest request) {
         String tokenValue = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
 
 
         User user = userService.findUserByUsername(request.getUsername());
-
 
 
         OneTimeToken token = new OneTimeToken();
@@ -53,7 +53,7 @@ public class PersistentOneTimeTokenService implements OneTimeTokenService {
 
         tokenRepository.save(token);
 
-        return new DefaultOneTimeToken(token.getTokenValue(),token.getUser().getUsername(), Instant.now());
+        return new DefaultOneTimeToken(token.getTokenValue(), token.getUser().getUsername(), Instant.now());
 
     }
 
@@ -71,12 +71,12 @@ public class PersistentOneTimeTokenService implements OneTimeTokenService {
         tokenRepository.save(token);
 
 
-        return new DefaultOneTimeToken(token.getTokenValue(),token.getUser().getUsername(), Instant.now());
+        return new DefaultOneTimeToken(token.getTokenValue(), token.getUser().getUsername(), Instant.now());
 
     }
 
     @Scheduled(cron = "@midnight")
-    public void removeExpiredTokens(){
+    public void removeExpiredTokens() {
         System.out.println("Tokens deleted");
         tokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());
     }

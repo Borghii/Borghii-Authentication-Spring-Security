@@ -11,7 +11,7 @@ import java.util.Map;
 @Component
 public class UserMapper {
 
-    public User fromDTO(UserDTO userDTO) {
+    public static User fromDTO(UserDTO userDTO) {
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(userDTO.getPassword());
@@ -31,7 +31,7 @@ public class UserMapper {
         return user;
     }
 
-    public UserDTO fromOAuth2User(OAuth2User oAuth2User) {
+    public static UserDTO fromOAuth2User(OAuth2User oAuth2User) {
         if (oAuth2User instanceof OidcUser oidcUser) {
             return UserDTO.builder()
                     .email(oidcUser.getEmail())
@@ -51,7 +51,7 @@ public class UserMapper {
         throw new IllegalArgumentException("Unsupported OAuth2 user type.");
     }
 
-    private String getProviderNameFromIssuer(String issuerUrl) {
+    private static String getProviderNameFromIssuer(String issuerUrl) {
         try {
             return issuerUrl.split("\\.")[1]; // Manejar posibles errores en caso de formato inesperado
         } catch (Exception e) {

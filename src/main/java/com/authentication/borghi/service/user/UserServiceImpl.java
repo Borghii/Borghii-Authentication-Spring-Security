@@ -27,13 +27,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
+
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
     }
 
 
@@ -45,7 +44,7 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExist("Username or email already used");
         }
 
-        User user = userMapper.fromDTO(userDTO);
+        User user = UserMapper.fromDTO(userDTO);
 
         user.setRole(new Role(user,"ROLE_USER"));
 
@@ -58,7 +57,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveOauthUser(OAuth2User oAuth2User) {
-        saveUserFromDTO(userMapper.fromOAuth2User(oAuth2User));
+        saveUserFromDTO(UserMapper.fromOAuth2User(oAuth2User));
     }
 
 
