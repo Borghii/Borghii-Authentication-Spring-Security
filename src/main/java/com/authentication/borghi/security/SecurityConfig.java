@@ -6,6 +6,7 @@ import com.authentication.borghi.security.handler.CustomAuthenticationFailureOTT
 import com.authentication.borghi.security.handler.CustomAuthenticationSuccessHandler;
 import com.authentication.borghi.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,13 +21,30 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+
+import javax.sql.DataSource;
 
 @Configuration
 public class SecurityConfig {
 
+    @Value("${REMEMBER_ME_KEY}")
+    private String rememberMeKey;
+
+    @Autowired
+    private DataSource dataSource;
+
     @Autowired
     private FilterChainExceptionHandler filterChainExceptionHandler;
+
+    @Bean
+    public PersistentTokenRepository persistentTokenRepository(){
+        final JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        return jdbcTokenRepository;
+    }
 
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
@@ -138,11 +156,6 @@ public class SecurityConfig {
                             .permitAll()
             )
 
-            .oneTimeTokenLogin(ott -> ott
-                    .authenticationSuccessHandler((req, res, auth) -> res.sendRedirect("/home"))
-                    .authenticationFailureHandler(customAuthenticationFailureHandlerOTT())
-            )
-
             .logout(logout -> logout
                     .logoutUrl("/logout") // URL para el logout (por defecto es "/logout")
                     .logoutSuccessUrl("/showMyCustomLogin?logout") // A dónde redirigir tras cerrar sesión
@@ -152,6 +165,16 @@ public class SecurityConfig {
                     .permitAll() // Permite acceso público al endpoint de logout
             )
 
+            .oneTimeTokenLogin(ott -> ott
+                    .authenticationSuccessHandler((req, res, auth) -> res.sendRedirect("/home"))
+                    .authenticationFailureHandler(customAuthenticationFailureHandlerOTT())
+            )
+
+            .rememberMe(rememberMe -> rememberMe
+                    .tokenRepository(persistentTokenRepository())  // Configuración de almacenamiento
+                    .tokenValiditySeconds(14 * 24 * 60 * 60)      // Duración del token (14 días)
+                    .key(rememberMeKey)                    // Clave para la cookie
+            )
             .exceptionHandling(exception ->
                     exception
                             .accessDeniedHandler(customAccessDeniedHandler())
