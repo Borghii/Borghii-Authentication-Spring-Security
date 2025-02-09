@@ -10,6 +10,7 @@ import com.authentication.borghi.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -150,13 +151,19 @@ public class PersistentOneTimeTokenServiceTest {
     @Test
     public void testRemoveExpiredTokens() {
         // GIVEN
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
         // WHEN
         tokenService.removeExpiredTokens();
 
         // THEN
-        verify(tokenRepository).deleteByExpiresAtBefore(now);
+        ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
+        verify(tokenRepository).deleteByExpiresAtBefore(captor.capture());
+
+        LocalDateTime capturedTime = captor.getValue().truncatedTo(ChronoUnit.SECONDS);
+
+        // Verifica que ambos tiempos sean iguales hasta la precisión de segundos
+        assertEquals(now, capturedTime, "Los tiempos no coinciden con la precisión esperada (segundos).");
     }
 
 

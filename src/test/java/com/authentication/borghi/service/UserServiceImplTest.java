@@ -51,8 +51,7 @@ class UserServiceImplTest {
         // Given
         UserDTO userDTO = createTestUserDTO();
         User user = createTestUser(userDTO);
-
-        when(userMapper.fromDTO(userDTO)).thenReturn(user);
+        
 
         // When
         userService.saveUserFromDTO(userDTO);

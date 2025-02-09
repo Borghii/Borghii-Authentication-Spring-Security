@@ -33,11 +33,6 @@ public class FilterChainExceptionHandler extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (UsernameNotFoundException e) {
 
-//            log.warning("Spring Security Filter Chain Exception:"+e.getMessage());
-//            // Almacena el mensaje en la sesión
-//            request.getSession().setAttribute("errorMessage", e.getMessage());
-//            // Redirige usando GET
-//            response.sendRedirect("/throw/username-not-found");
             exceptionResolver.resolveException(request, response, null, e);
         }
     }
