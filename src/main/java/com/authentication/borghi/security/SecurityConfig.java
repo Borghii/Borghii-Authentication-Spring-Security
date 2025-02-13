@@ -10,12 +10,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -79,6 +84,7 @@ public class SecurityConfig {
     }
 
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -92,23 +98,23 @@ public class SecurityConfig {
             //.requiresChannel(channel -> channel.anyRequest().requiresSecure()) // Enforce HTTPS
 
 
-            .headers(headers -> headers
-                    .httpStrictTransportSecurity(hsts -> hsts
-                            .includeSubDomains(true)
-                            .preload(true)
-                            .maxAgeInSeconds(31536000) // 1 año
-                    )
-                    .contentSecurityPolicy(csp -> csp
-                            .policyDirectives("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://pngimg.com https://cdn1.iconfinder.com; font-src 'self';")
-                    )
-                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin // Permite que la página se cargue en un frame del mismo origen
-                    )
-                    .xssProtection(xss -> xss
-                            .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
-                    )
-                    .contentTypeOptions(HeadersConfigurer.ContentTypeOptionsConfig::disable // O habilita con .enable()
-                    )
-            )
+//            .headers(headers -> headers
+//                    .httpStrictTransportSecurity(hsts -> hsts
+//                            .includeSubDomains(true)
+//                            .preload(true)
+//                            .maxAgeInSeconds(31536000) // 1 año
+//                    )
+//                    .contentSecurityPolicy(csp -> csp
+//                            .policyDirectives("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://pngimg.com https://cdn1.iconfinder.com; font-src 'self';")
+//                    )
+//                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin // Permite que la página se cargue en un frame del mismo origen
+//                    )
+//                    .xssProtection(xss -> xss
+//                            .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
+//                    )
+//                    .contentTypeOptions(HeadersConfigurer.ContentTypeOptionsConfig::disable // O habilita con .enable()
+//                    )
+//            )
 
             .sessionManagement(session -> session
                     .sessionFixation().migrateSession() // Cambia el ID de sesión después del login
@@ -130,10 +136,15 @@ public class SecurityConfig {
                                         "/login/ott",
                                         "/ott/generate",
                                         "/favicon.ico",
-                                        "/error/username-not-found"
+                                        "/error/username-not-found",
+
+                                        "/webauthn/authenticate/options",
+                                        "/login/webauthn"
+
 
                                                         ).permitAll()
                         .requestMatchers("/home").authenticated()
+                        .requestMatchers("/webauthn/register/*").authenticated()
                         .requestMatchers("/userinfo").hasAnyAuthority("ROLE_USER", "ROLE_OIDC_USER")
                         .anyRequest().authenticated()
             )
@@ -175,6 +186,13 @@ public class SecurityConfig {
                     .tokenValiditySeconds(14 * 24 * 60 * 60)      // Duración del token (14 días)
                     .key(rememberMeKey)                    // Clave para la cookie
             )
+
+            .webAuthn((webAuthn) -> webAuthn
+                    .rpName("Spring Security Relying Party")
+                    .rpId("localhost")
+                    .allowedOrigins("http://localhost:8080")
+            )
+
             .exceptionHandling(exception ->
                     exception
                             .accessDeniedHandler(customAccessDeniedHandler())
@@ -185,14 +203,6 @@ public class SecurityConfig {
 }
 
 
-//    public UserDetailsService userDetailsService() {
-//        UserDetails user = User.withDefaultPasswordEncoder()
-//                .username("user")
-//                .password("password")
-//                .roles("USER")
-//                .build();
-//        return new InMemoryUserDetailsManager(user);
-//    }
 
 
 
