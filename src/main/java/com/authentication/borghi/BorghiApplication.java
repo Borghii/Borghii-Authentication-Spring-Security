@@ -2,7 +2,9 @@ package com.authentication.borghi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 
 @EnableScheduling
 @SpringBootApplication

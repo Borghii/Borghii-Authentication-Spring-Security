@@ -77,6 +77,10 @@ margin-top:10px;
   padding: auto;
 }
 
+.button-passkey{
+    margin-top: 0;
+}
+
 .github-button {
     display: flex;
     align-items: center;

@@ -196,7 +196,7 @@
   async function authenticateOrError(headers, contextPath, useConditionalMediation) {
     try {
       const redirectUrl = await webauthn_core_default.authenticate(headers, contextPath, useConditionalMediation);
-      window.location.href = redirectUrl;
+      window.location.href = "/home";
     } catch (err) {
       console.error(err);
       window.location.href = `${contextPath}/login?error`;
