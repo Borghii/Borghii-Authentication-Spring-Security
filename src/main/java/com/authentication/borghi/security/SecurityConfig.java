@@ -76,7 +76,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(UserService userService){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
@@ -106,32 +105,51 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
     http
+            .csrf(Customizer.withDefaults())
+
+            .authorizeHttpRequests((authorize) ->
+                    authorize
+                            //gracias a esto me carga el css (no es necesario autenticacion para recurso estaticos)
+                            .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                            .requestMatchers("/showCreateAccount",
+                                    "/register/**",
+                                    "/access-denied",
+                                    "/showMyCustomLogin",
+                                    "/oauth2/**",
+                                    "/ott/sent",
+                                    "/login/ott",
+                                    "/ott/generate",
+                                    "/favicon.ico",
+                                    "/error/username-not-found",
+
+                                    "/webauthn/authenticate/options",
+                                    "/login/webauthn"
+
+
+                            ).permitAll()
+                            .requestMatchers("/home").authenticated()
+                            .requestMatchers("/webauthn/register/*").authenticated()
+                            .requestMatchers("/userinfo").hasAnyAuthority("ROLE_USER", "ROLE_OIDC_USER")
+                            .anyRequest().authenticated()
+            )
+
+
+            .formLogin(form->
+                    form
+                            .loginPage("/showMyCustomLogin")
+                            .loginProcessingUrl("/authenticateTheUser")
+                            .defaultSuccessUrl("/home",true)
+                            .successHandler(customAuthenticationSuccessHandler())
+                            .permitAll()
+            )
+
+
             //agregamos filtro para capturar exceptiones que ocurrent dentro de los filtros
             //y manejarlas con nuestro global exception handler
             .addFilterBefore(filterChainExceptionHandler, LogoutFilter.class)
 
-            .csrf(Customizer.withDefaults())
-
-            //.requiresChannel(channel -> channel.anyRequest().requiresSecure()) // Enforce HTTPS
 
 
-//            .headers(headers -> headers
-//                    .httpStrictTransportSecurity(hsts -> hsts
-//                            .includeSubDomains(true)
-//                            .preload(true)
-//                            .maxAgeInSeconds(31536000) // 1 año
-//                    )
-//                    .contentSecurityPolicy(csp -> csp
-//                            .policyDirectives("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://pngimg.com https://cdn1.iconfinder.com; font-src 'self';")
-//                    )
-//                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin // Permite que la página se cargue en un frame del mismo origen
-//                    )
-//                    .xssProtection(xss -> xss
-//                            .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
-//                    )
-//                    .contentTypeOptions(HeadersConfigurer.ContentTypeOptionsConfig::disable // O habilita con .enable()
-//                    )
-//            )
 
             .sessionManagement(session -> session
                     .sessionFixation().migrateSession() // Cambia el ID de sesión después del login
@@ -140,31 +158,7 @@ public class SecurityConfig {
                     .expiredUrl("/showMyCustomLogin?expiredSession") // Redirige a la página de login cuando la sesión caduca
             )
 
-            .authorizeHttpRequests((authorize) ->
-                    authorize
-                        //gracias a esto me carga el css (no es necesario autenticacion para recurso estaticos)
-                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/showCreateAccount",
-                                        "/register/**",
-                                        "/access-denied",
-                                        "/showMyCustomLogin",
-                                        "/oauth2/**",
-                                        "/ott/sent",
-                                        "/login/ott",
-                                        "/ott/generate",
-                                        "/favicon.ico",
-                                        "/error/username-not-found",
 
-                                        "/webauthn/authenticate/options",
-                                        "/login/webauthn"
-
-
-                                                        ).permitAll()
-                        .requestMatchers("/home").authenticated()
-                        .requestMatchers("/webauthn/register/*").authenticated()
-                        .requestMatchers("/userinfo").hasAnyAuthority("ROLE_USER", "ROLE_OIDC_USER")
-                        .anyRequest().authenticated()
-            )
 
             .oauth2Login(form ->
                     form
@@ -175,14 +169,7 @@ public class SecurityConfig {
 
             )
 
-            .formLogin(form->
-                    form
-                            .loginPage("/showMyCustomLogin")
-                            .loginProcessingUrl("/authenticateTheUser")
-                            .defaultSuccessUrl("/home",true)
-                            .successHandler(customAuthenticationSuccessHandler())
-                            .permitAll()
-            )
+
 
             .logout(logout -> logout
                     .logoutUrl("/logout") // URL para el logout (por defecto es "/logout")
