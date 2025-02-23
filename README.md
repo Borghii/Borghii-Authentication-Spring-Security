@@ -5,8 +5,9 @@ The main purpose of this project is to implement various user authentication met
 - Session management to handle user state persistence.
 - OpenID (OAuth 2.0) as a client for external authentication.
 - Passkey authentication (FIDO2/WebAuthn) for enhanced security.
+- One-Time Token authentication for temporary and secure access.
 - "Remember Me" functionality to improve the user experience.
-- Unit and integration testing to ensure code quality with h2 in memory database.
+- Unit and integration testing to ensure code quality with H2 in-memory database.
 - Dynamic templates built with Thymeleaf.
 - Validation messages and notifications for actions such as user logout, user creation, and more.
 
