@@ -11,6 +11,10 @@ The main purpose of this project is to implement various user authentication met
 - Dynamic templates built with Thymeleaf.
 - Validation messages and notifications for actions such as user logout, user creation, and more.
 
+## Preview in youtube
+
+[![Miniatura del video](https://img.youtube.com/vi/287Uao4CTqc/0.jpg)](https://www.youtube.com/watch?v=287Uao4CTqc)
+
 
 ## Preview Login
 
