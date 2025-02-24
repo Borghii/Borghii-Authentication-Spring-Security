@@ -13,9 +13,14 @@
 <body>
 <h1>Sign in</h1>
 
-<p th:if="${param.success}" class="success">User created successfully! Please log in.</p>
+
+<p th:if="${successMessage}" class="success" th:text="${successMessage}"></p>
 
 <p th:if="${param.error}" class="error">Invalid username or password.</p>
+
+<p th:if="${param.expiredSession}" class="error">Your session has expired.</p>
+
+<p th:if="${param.logout}" class="success">Successful logout.</p>
 
 <form th:action="@{/authenticateTheUser}" method="POST">
 
@@ -23,10 +28,13 @@
 
 
         <label for="username">Username </label>
-        <input type="text" id="username" name="username" placeholder="username" class="form-control">
+        <input type="text" id="usernamePlain" name="username" placeholder="username" class="form-control">
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password" placeholder="password" class="form-control">
+
+        <label style="display: inline-block;" for ="remember-me">Remember me?</label>
+        <input  style="display: inline-block;" type="checkbox" id="remember-me" name="remember-me" value="true" />
 
 
         <input type="submit" value="Login"/>
@@ -37,6 +45,47 @@
     <hr>
 
 </form>
+
+<h2>One time token</h2>
+
+<form th:action="@{/ott/generate}" method="POST">
+
+    <p th:if="${usernameNotFound}" class="error" th:text="${usernameNotFound}"></p>
+    <p th:if="${tokenExpired}" class="error" th:text="${tokenExpired}"></p>
+
+
+
+    <fieldset>
+
+        <!-- Campo oculto para el token CSRF -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <label for="username">Token </label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" />
+
+
+
+        <input type="submit" value="Login with token"/>
+
+    </fieldset>
+
+
+</form>
+
+<hr>
+<h2>Or</h2>
+<!-- Botón estilizado para GitHub -->
+<a href="/oauth2/authorization/github" class="github-button">
+    <img src="https://pngimg.com/uploads/github/github_PNG83.png" alt="GitHub Logo">
+    Sign in with GitHub
+</a>
+
+<a href="/oauth2/authorization/google" class="github-button">
+    <img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" alt="Google Logo">
+    Sign in with Google
+</a>
+
+<hr>
 
 <label>Don't you have already an account? <a th:href="@{/showCreateAccount}">Create account</a> </label>
 
