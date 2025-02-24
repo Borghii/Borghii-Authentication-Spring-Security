@@ -1,4 +1,4 @@
-# 🔒 Proyect-Multi-Auth-Spring-Security
+# 🔒 Project-Multi-Auth-Spring-Security
 
 The main purpose of this project is to implement various user authentication methods using **Spring Security**, including:
 
