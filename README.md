@@ -1,4 +1,4 @@
-# 🔒 Borghii-Authentication-Spring-Security
+# 🔒 Authentication-Spring-Security
 
 The main purpose of this project is to implement various user authentication methods using **Spring Security**, including:
 
@@ -59,40 +59,40 @@ src/
 ├── main/
 │ ├── java/
 │ │ └── com/authentication/borghi/
-│ │ ├── controller/ # Controladores para manejar solicitudes
-│ │ ├── dto/ # Objetos de Transferencia de Datos (DTOs)
-│ │ ├── entity/ # Entidades JPA
-│ │ │ ├── onetimeToken/ # Entidades relacionadas con tokens de un solo uso
-│ │ │ └── user/ # Entidades relacionadas con usuarios
-│ │ ├── exceptions/ # Excepciones personalizadas
-│ │ ├── filter/ # Filtros personalizados
-│ │ ├── repository/ # Repositorios para acceso a datos
-│ │ ├── security/ # Configuraciones y manejadores de seguridad
-│ │ │ └── handler/ # Manejadores personalizados de seguridad
-│ │ ├── service/ # Lógica de negocio y servicios
-│ │ │ ├── email/ # Servicios relacionados con correos electrónicos
-│ │ │ ├── onetimeToken/ # Servicios para tokens de un solo uso
-│ │ │ └── user/ # Servicios relacionados con usuarios
-│ │ └── strategy/ # Estrategias de autenticación
-│ │ └── admin/ # Estrategias relacionadas con administradores
-│ ├── resources/ # Recursos estáticos y plantillas
-│ │ ├── static/ # Archivos estáticos (CSS, JS, etc.)
-│ │ │ ├── css/ # Archivos CSS
-│ │ │ └── js/ # Archivos JavaScript
-│ │ ├── templates/ # Plantillas Thymeleaf
-│ │ └── application.properties # Archivo de configuración principal
-│ └── test/ # Pruebas
-│ ├── java/ # Código fuente de pruebas
+│ │ ├── controller/ # Controllers for handling requests
+│ │ ├── dto/ # Data Transfer Objects (DTOs)
+│ │ ├── entity/ # JPA entities
+│ │ │ ├── onetimeToken/ # One-Time Token related entities
+│ │ │ └── user/ # User-related entities
+│ │ ├── exceptions/ # Custom exceptions
+│ │ ├── filter/ # Custom filters
+│ │ ├── repository/ # Data access repositories
+│ │ ├── security/ # Security configurations and handlers
+│ │ │ └── handler/ # Custom security handlers
+│ │ ├── service/ # Business logic and services
+│ │ │ ├── email/ # Email-related services
+│ │ │ ├── onetimeToken/ # One-Time Token services
+│ │ │ └── user/ # User-related services
+│ │ └── strategy/ # Authentication strategies
+│ │ └── admin/ # Admin-related strategies
+│ ├── resources/ # Static resources and templates
+│ │ ├── static/ # Static files (CSS, JS, etc.)
+│ │ │ ├── css/ # CSS files
+│ │ │ └── js/ # JavaScript files
+│ │ ├── templates/ # Thymeleaf templates
+│ │ └── application.properties # Main configuration file
+│ └── test/ # Tests
+│ ├── java/ # Test source code
 │ │ └── com/authentication/borghi/
-│ │ ├── constants/ # Constantes para pruebas
-│ │ ├── controller/ # Pruebas de controladores
-│ │ ├── integration/ # Pruebas de integración
-│ │ ├── repository/ # Pruebas de repositorios
-│ │ ├── security/ # Pruebas de seguridad
-│ │ └── service/ # Pruebas de servicios
-│ └── resources/ # Recursos para pruebas
-│ └── application-test.properties # Configuración para pruebas
-└── BorginApplication.java # Clase principal de la aplicación
+│ │ ├── constants/ # Test constants
+│ │ ├── controller/ # Controller tests
+│ │ ├── integration/ # Integration tests
+│ │ ├── repository/ # Repository tests
+│ │ ├── security/ # Security tests
+│ │ └── service/ # Service tests
+│ └── resources/ # Test resources
+│ └── application-test.properties # Test configuration file
+└── BorginApplication.java # Main application class
 </pre>
 
 
